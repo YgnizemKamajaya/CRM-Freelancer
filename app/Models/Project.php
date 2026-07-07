@@ -30,7 +30,6 @@ class Project extends Model
     ];
 
     protected $fillable = [
-        'user_id',
         'client_id',
         'deal_id',
         'title',
@@ -53,16 +52,6 @@ class Project extends Model
             'deadline' => 'date',
             'completed_at' => 'datetime',
         ];
-    }
-
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
-    {
-        return $query->where('user_id', $userId);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function client(): BelongsTo

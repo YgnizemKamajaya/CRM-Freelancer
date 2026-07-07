@@ -2,7 +2,18 @@
 
 # Mini CRM for Freelancer
 
-# Stack: Laravel 12, MySQL, Tailwind CSS 4.2, Flowbite 4, Heroicons SVG, Livewire SPA-like, Breeze Auth, PWA
+# Stack: Laravel 12, MySQL, Tailwind CSS 4.2, Flowbite 4, Heroicons SVG, Livewire SPA-like, Single-user PIN Auth, PWA
+
+## Current Implementation Update
+
+This project is now greenfield single-user PIN mode:
+
+* No users table.
+* No registration, password reset, email verification, or multi-user ownership path.
+* `/login` unlocks the private workspace with `CRM_PIN`.
+* `/logout` locks the workspace session.
+* Owner name, owner email, avatar, business identity, and invoice defaults live in `settings`.
+* CRM data tables are not scoped by `user_id`.
 
 ## 1. Product Name
 
@@ -118,11 +129,12 @@ Frontend:
 
 Auth:
 
-* Laravel Breeze
-* Single authenticated user/admin
-* Disable public registration after first admin is created
-* Login/logout available
-* Optional PIN unlock mode can be added later, but Breeze login is acceptable for this CRM project
+* Single-user PIN unlock
+* No registration
+* No password reset
+* No email verification
+* Login unlock and logout lock available
+* Rate limit invalid PIN attempts
 
 Database:
 
@@ -225,7 +237,7 @@ Secondary navigation:
 * Project details
 * Invoice details
 * Activity log
-* Profile/settings
+* Owner profile/settings
 
 ## 10. Page Requirements
 
@@ -233,12 +245,11 @@ Secondary navigation:
 
 Requirements:
 
-* Laravel Breeze login
+* PIN unlock form
 * Clean modern UI
 * App name and short tagline
 * Mobile responsive
-* Remember me optional
-* Password reset optional
+* Rate-limited invalid attempts
 
 ### 10.2 Dashboard Page
 
@@ -688,30 +699,27 @@ Settings:
 * Default tax percentage optional
 * Theme preference optional
 * PWA install info
-* Account/profile settings
+* Owner profile/avatar settings
 
 ## 11. Data Model
 
-### 11.1 users
+### 11.1 sessions
 
-Use Laravel Breeze default users table.
+Use Laravel database sessions for the PIN-unlocked workspace.
 
 Fields:
 
 * id
-* name
-* email
-* email_verified_at
-* password
-* remember_token
-* timestamps
+* ip_address nullable
+* user_agent nullable
+* payload
+* last_activity
 
 ### 11.2 clients
 
 Fields:
 
 * id
-* user_id
 * name
 * company_name nullable
 * email nullable
@@ -730,7 +738,6 @@ Fields:
 
 Indexes:
 
-* user_id
 * status
 * name
 * email
@@ -741,7 +748,6 @@ Indexes:
 Fields:
 
 * id
-* user_id
 * client_id
 * title
 * description nullable
@@ -768,7 +774,6 @@ Deal status:
 
 Indexes:
 
-* user_id
 * client_id
 * stage
 * status
@@ -780,7 +785,6 @@ Indexes:
 Fields:
 
 * id
-* user_id
 * client_id
 * deal_id nullable
 * title
@@ -798,7 +802,6 @@ Fields:
 
 Indexes:
 
-* user_id
 * client_id
 * deal_id
 * status
@@ -809,7 +812,6 @@ Indexes:
 Fields:
 
 * id
-* user_id
 * client_id nullable
 * deal_id nullable
 * project_id nullable
@@ -826,7 +828,6 @@ Fields:
 
 Indexes:
 
-* user_id
 * client_id
 * deal_id
 * project_id
@@ -840,7 +841,6 @@ Indexes:
 Fields:
 
 * id
-* user_id
 * client_id nullable
 * deal_id nullable
 * project_id nullable
@@ -853,7 +853,6 @@ Fields:
 
 Indexes:
 
-* user_id
 * client_id
 * deal_id
 * project_id
@@ -866,7 +865,6 @@ Indexes:
 Fields:
 
 * id
-* user_id
 * client_id
 * project_id nullable
 * invoice_number
@@ -887,7 +885,6 @@ Fields:
 
 Indexes:
 
-* user_id
 * client_id
 * project_id
 * invoice_number
@@ -896,7 +893,7 @@ Indexes:
 
 Unique:
 
-* user_id + invoice_number
+* invoice_number unique
 
 ### 11.8 invoice_items
 
@@ -920,7 +917,6 @@ Indexes:
 Fields:
 
 * id
-* user_id
 * business_name nullable
 * business_email nullable
 * business_phone nullable
@@ -935,7 +931,6 @@ Fields:
 
 Unique:
 
-* user_id
 
 ## 12. Eloquent Relationships
 
@@ -1304,15 +1299,13 @@ PWA:
 
 Must implement:
 
-* Laravel Breeze auth
+* Single-user PIN unlock
+* Rate limit PIN attempts
 * CSRF protection
-* Authorization by user_id ownership
 * Form request validation
 * Escaped output in Blade
-* File upload validation if logo upload is implemented
-* No public registration after first user, unless explicitly enabled
-* Prevent accessing other user records even though app is single-user
-* Use hashed passwords
+* File upload validation for avatar/logo
+* No public registration or user management
 * Use environment variables for DB and app config
 * APP_DEBUG=false in production
 * Do not expose sensitive .env file
@@ -1419,7 +1412,7 @@ Tasks:
 
 1. Create Laravel 12 project.
 2. Configure MySQL.
-3. Install Breeze.
+3. Implement PIN unlock.
 4. Install Tailwind CSS 4.2.
 5. Install Flowbite 4.
 6. Configure Vite.
@@ -1667,9 +1660,9 @@ Deliverables:
 
 Tasks:
 
-1. Test auth.
+1. Test PIN unlock/lock.
 2. Test CRUD for every module.
-3. Test ownership scoping.
+3. Test protected routes.
 4. Test invoice calculation.
 5. Test deal conversion.
 6. Test dashboard metrics.
@@ -1825,7 +1818,7 @@ Use this stack:
 * Laravel 12
 * PHP 8.3+
 * MySQL/MariaDB
-* Laravel Breeze authentication
+* Single-user PIN authentication
 * Blade + Livewire SPA-like navigation where appropriate
 * Tailwind CSS 4.2
 * Flowbite 4

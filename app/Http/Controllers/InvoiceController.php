@@ -22,7 +22,7 @@ class InvoiceController extends Controller
 
     public function index(Request $request): View
     {
-        $invoices = Invoice::ownedBy($request->user()->id)
+        $invoices = Invoice::query()
             ->with(['client', 'project'])
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
             ->when($request->filled('client_id'), fn ($query) => $query->where('client_id', $request->client_id))
@@ -32,7 +32,7 @@ class InvoiceController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $summary = Invoice::ownedBy($request->user()->id)->get()
+        $summary = Invoice::query()->get()
             ->reduce(fn (array $carry, Invoice $invoice) => [
                 'unpaid' => $carry['unpaid'] + (! in_array($invoice->status, ['paid', 'cancelled'], true) ? $invoice->balance : 0),
                 'overdue' => $carry['overdue'] + ($invoice->due_date?->lt(today()) && ! in_array($invoice->status, ['paid', 'cancelled'], true) ? $invoice->balance : 0),
@@ -40,7 +40,7 @@ class InvoiceController extends Controller
 
         return view('invoices.index', [
             'invoices' => $invoices,
-            'clients' => Client::ownedBy($request->user()->id)->orderBy('name')->get(),
+            'clients' => Client::orderBy('name')->get(),
             'statuses' => Invoice::STATUSES,
             'summary' => $summary,
         ]);
@@ -48,7 +48,7 @@ class InvoiceController extends Controller
 
     public function create(Request $request): View
     {
-        $setting = Setting::firstOrCreate(['user_id' => $request->user()->id]);
+        $setting = Setting::firstOrCreate([]);
         $number = sprintf('%s-%04d', $setting->invoice_prefix, $setting->invoice_next_number);
 
         return view('invoices.form', $this->formData($request) + [
@@ -70,10 +70,10 @@ class InvoiceController extends Controller
     public function store(Request $request, InvoiceService $invoiceService): RedirectResponse
     {
         $data = $this->validated($request);
-        $invoice = Invoice::create(collect($data)->except('items')->all() + ['user_id' => $request->user()->id]);
+        $invoice = Invoice::create(collect($data)->except('items')->all());
         $invoiceService->replaceItemsAndSync($invoice, $data['items'] ?? []);
 
-        $setting = Setting::firstOrCreate(['user_id' => $request->user()->id]);
+        $setting = Setting::firstOrCreate([]);
         if (str_starts_with($invoice->invoice_number, $setting->invoice_prefix.'-')) {
             $setting->increment('invoice_next_number');
         }
@@ -140,17 +140,17 @@ class InvoiceController extends Controller
     public function print(Invoice $invoice): View
     {
         $this->authorizeOwner($invoice);
-        $invoice->load(['client', 'project', 'items', 'user.setting']);
+        $invoice->load(['client', 'project', 'items']);
 
-        return view('invoices.print', ['invoice' => $invoice]);
+        return view('invoices.print', ['invoice' => $invoice, 'setting' => Setting::first()]);
     }
 
     public function pdf(Invoice $invoice): Response
     {
         $this->authorizeOwner($invoice);
-        $invoice->load(['client', 'project', 'items', 'user.setting']);
+        $invoice->load(['client', 'project', 'items']);
 
-        return Pdf::loadView('invoices.pdf', ['invoice' => $invoice])
+        return Pdf::loadView('invoices.pdf', ['invoice' => $invoice, 'setting' => Setting::first()])
             ->setPaper('a4')
             ->download($invoice->invoice_number.'.pdf');
     }
@@ -167,9 +167,7 @@ class InvoiceController extends Controller
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('invoices', 'invoice_number')
-                    ->where('user_id', $request->user()->id)
-                    ->ignore($invoice),
+                Rule::unique('invoices', 'invoice_number')->ignore($invoice),
             ],
             'issue_date' => ['required', 'date'],
             'due_date' => ['nullable', 'date', 'after_or_equal:issue_date'],
@@ -191,11 +189,9 @@ class InvoiceController extends Controller
      */
     private function formData(Request $request): array
     {
-        $userId = $request->user()->id;
-
         return [
-            'clients' => Client::ownedBy($userId)->orderBy('name')->get(),
-            'projects' => Project::ownedBy($userId)->with('client')->orderBy('title')->get(),
+            'clients' => Client::orderBy('name')->get(),
+            'projects' => Project::with('client')->orderBy('title')->get(),
             'statuses' => Invoice::STATUSES,
         ];
     }

@@ -1,6 +1,6 @@
 @php
     $money = fn ($value) => 'IDR '.number_format((float) $value, 0, ',', '.');
-    $setting = $invoice->user->setting;
+    $setting = $setting ?? \App\Models\Setting::first();
 @endphp
 <!DOCTYPE html>
 <html lang="en">

@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('company_name')->nullable();
             $table->string('email')->nullable();
@@ -27,13 +26,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['user_id', 'name']);
-            $table->index(['user_id', 'email']);
+            $table->index('name');
+            $table->index('email');
         });
 
         Schema::create('deals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
@@ -51,14 +49,11 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['user_id', 'client_id']);
-            $table->index(['user_id', 'stage']);
-            $table->index(['user_id', 'status']);
+            $table->index('client_id');
         });
 
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->foreignId('deal_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
@@ -74,14 +69,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['user_id', 'client_id']);
-            $table->index(['user_id', 'deal_id']);
-            $table->index(['user_id', 'status']);
+            $table->index('client_id');
+            $table->index('deal_id');
         });
 
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->foreignId('project_id')->nullable()->constrained()->nullOnDelete();
             $table->string('invoice_number');
@@ -100,10 +93,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['user_id', 'invoice_number']);
-            $table->index(['user_id', 'client_id']);
-            $table->index(['user_id', 'project_id']);
-            $table->index(['user_id', 'status']);
+            $table->unique('invoice_number');
+            $table->index('client_id');
+            $table->index('project_id');
         });
 
         Schema::create('invoice_items', function (Blueprint $table) {
@@ -119,7 +111,6 @@ return new class extends Migration
 
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('deal_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('project_id')->nullable()->constrained()->nullOnDelete();
@@ -134,15 +125,14 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['user_id', 'client_id']);
-            $table->index(['user_id', 'deal_id']);
-            $table->index(['user_id', 'project_id']);
-            $table->index(['user_id', 'invoice_id']);
+            $table->index('client_id');
+            $table->index('deal_id');
+            $table->index('project_id');
+            $table->index('invoice_id');
         });
 
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('deal_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('project_id')->nullable()->constrained()->nullOnDelete();
@@ -153,15 +143,17 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['user_id', 'client_id']);
-            $table->index(['user_id', 'deal_id']);
-            $table->index(['user_id', 'project_id']);
-            $table->index(['user_id', 'invoice_id']);
+            $table->index('client_id');
+            $table->index('deal_id');
+            $table->index('project_id');
+            $table->index('invoice_id');
         });
 
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->string('owner_name')->default('Demo Freelancer');
+            $table->string('owner_email')->nullable();
+            $table->string('avatar_path')->nullable();
             $table->string('business_name')->nullable();
             $table->string('business_email')->nullable();
             $table->string('business_phone')->nullable();

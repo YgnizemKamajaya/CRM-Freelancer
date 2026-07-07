@@ -26,13 +26,11 @@ class ActivityController extends Controller
         ]);
 
         $activity = Activity::create($data + [
-            'user_id' => $request->user()->id,
             'activity_at' => $data['activity_at'] ?? now(),
         ]);
 
         if ($activity->client_id && in_array($activity->type, Activity::CONTACT_TYPES, true)) {
             Client::whereKey($activity->client_id)
-                ->where('user_id', $request->user()->id)
                 ->update(['last_contacted_at' => $activity->activity_at ?? now()]);
         }
 

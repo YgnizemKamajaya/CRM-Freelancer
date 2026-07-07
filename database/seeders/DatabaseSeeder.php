@@ -9,23 +9,18 @@ use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Setting;
 use App\Models\Task;
-use App\Models\User;
 use App\Services\ProjectProgressService;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::updateOrCreate(
-            ['email' => 'demo@example.com'],
-            ['name' => 'Demo Freelancer', 'password' => Hash::make('password')],
-        );
-
         Setting::updateOrCreate(
-            ['user_id' => $user->id],
+            ['id' => 1],
             [
+                'owner_name' => 'Demo Freelancer',
+                'owner_email' => 'demo@example.com',
                 'business_name' => 'Freelance CRM Studio',
                 'business_email' => 'demo@example.com',
                 'business_phone' => '+62 812 0000 1234',
@@ -47,11 +42,10 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Padi Clinic', 'company_name' => 'Padi Health Clinic', 'email' => 'contact@padiclinic.test', 'status' => 'prospect', 'source' => 'LinkedIn', 'tags' => ['booking']],
             ['name' => 'Orbit Finance', 'company_name' => 'Orbit Finance', 'email' => 'finance@orbit.test', 'status' => 'lead', 'source' => 'Referral', 'tags' => ['dashboard']],
             ['name' => 'Teras Travel', 'company_name' => 'Teras Travel', 'email' => 'sales@terastravel.test', 'status' => 'active_client', 'source' => 'Existing Client', 'tags' => ['crm']],
-        ])->map(function (array $data) use ($user) {
+        ])->map(function (array $data) {
             return Client::updateOrCreate(
-                ['user_id' => $user->id, 'email' => $data['email']],
+                ['email' => $data['email']],
                 $data + [
-                    'user_id' => $user->id,
                     'phone' => '+62 812 '.fake()->numerify('#### ####'),
                     'whatsapp' => '+62 812 '.fake()->numerify('#### ####'),
                     'website' => 'https://'.str($data['company_name'])->slug().'.test',
@@ -83,13 +77,12 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Maintenance package', 'stage' => 'negotiation', 'value' => 8000000],
             ['title' => 'Brand website sprint', 'stage' => 'qualified', 'value' => 14000000],
             ['title' => 'Invoice automation', 'stage' => 'proposal_sent', 'value' => 10500000],
-        ])->map(function (array $data, int $index) use ($user, $clients, $stageProbability) {
+        ])->map(function (array $data, int $index) use ($clients, $stageProbability) {
             $stage = $data['stage'];
 
             return Deal::updateOrCreate(
-                ['user_id' => $user->id, 'title' => $data['title']],
+                ['title' => $data['title']],
                 $data + [
-                    'user_id' => $user->id,
                     'client_id' => $clients[$index % $clients->count()]->id,
                     'currency' => 'IDR',
                     'probability' => $stageProbability[$stage],
@@ -105,11 +98,10 @@ class DatabaseSeeder extends Seeder
             );
         });
 
-        $projects = $deals->where('status', 'won')->values()->map(function (Deal $deal, int $index) use ($user) {
+        $projects = $deals->where('status', 'won')->values()->map(function (Deal $deal, int $index) {
             return Project::updateOrCreate(
-                ['user_id' => $user->id, 'deal_id' => $deal->id],
+                ['deal_id' => $deal->id],
                 [
-                    'user_id' => $user->id,
                     'client_id' => $deal->client_id,
                     'deal_id' => $deal->id,
                     'title' => $deal->title,
@@ -128,9 +120,8 @@ class DatabaseSeeder extends Seeder
         while ($projects->count() < 5) {
             $client = $clients[$projects->count()];
             $projects->push(Project::updateOrCreate(
-                ['user_id' => $user->id, 'title' => $client->company_name.' implementation'],
+                ['title' => $client->company_name.' implementation'],
                 [
-                    'user_id' => $user->id,
                     'client_id' => $client->id,
                     'status' => 'planned',
                     'priority' => 'medium',
@@ -147,9 +138,8 @@ class DatabaseSeeder extends Seeder
             $client = $clients[$i % $clients->count()];
             $project = $projects[$i % $projects->count()];
             Task::updateOrCreate(
-                ['user_id' => $user->id, 'title' => "Demo task {$i}"],
+                ['title' => "Demo task {$i}"],
                 [
-                    'user_id' => $user->id,
                     'client_id' => $client->id,
                     'project_id' => $project->id,
                     'title' => ['Follow up proposal', 'Prepare wireframe', 'Send invoice reminder', 'Review client feedback'][$i % 4]." {$i}",
@@ -168,9 +158,8 @@ class DatabaseSeeder extends Seeder
         foreach (range(1, 30) as $i) {
             $client = $clients[$i % $clients->count()];
             Activity::updateOrCreate(
-                ['user_id' => $user->id, 'body' => "Demo activity note {$i}"],
+                ['body' => "Demo activity note {$i}"],
                 [
-                    'user_id' => $user->id,
                     'client_id' => $client->id,
                     'deal_id' => $deals[$i % $deals->count()]->id,
                     'project_id' => $projects[$i % $projects->count()]->id,
@@ -187,9 +176,8 @@ class DatabaseSeeder extends Seeder
             $status = ['draft', 'sent', 'partially_paid', 'paid', 'overdue', 'sent', 'paid', 'cancelled'][$i - 1];
             $total = 3500000 + ($i * 1250000);
             $invoice = Invoice::updateOrCreate(
-                ['user_id' => $user->id, 'invoice_number' => sprintf('INV-%04d', $i)],
+                ['invoice_number' => sprintf('INV-%04d', $i)],
                 [
-                    'user_id' => $user->id,
                     'client_id' => $client->id,
                     'project_id' => $project->id,
                     'issue_date' => now()->subDays(35 - ($i * 3))->toDateString(),

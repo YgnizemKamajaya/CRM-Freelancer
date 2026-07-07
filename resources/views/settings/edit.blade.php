@@ -7,7 +7,38 @@
 
         <div>
             <h2 class="text-2xl font-semibold text-gray-900">Settings</h2>
-            <p class="mt-1 text-sm text-gray-500">Business identity and invoice defaults.</p>
+            <p class="mt-1 text-sm text-gray-500">Owner profile, business identity, and invoice defaults.</p>
+        </div>
+
+        <div class="crm-card grid gap-4 p-5 md:grid-cols-[auto_1fr_1fr]">
+            <div class="flex items-center gap-4 md:col-span-3">
+                @if ($setting->avatar_path)
+                    <img src="{{ asset('storage/'.$setting->avatar_path) }}" alt="{{ $setting->owner_name }} avatar" class="h-16 w-16 rounded-lg object-cover">
+                @else
+                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-900 text-xl font-semibold text-white">
+                        {{ str($setting->owner_name ?? config('crm.owner_name'))->substr(0, 1)->upper() }}
+                    </div>
+                @endif
+                <div>
+                    <h3 class="font-semibold text-gray-900">Owner profile</h3>
+                    <p class="text-sm text-gray-500">Shown in the top bar.</p>
+                </div>
+            </div>
+            <div>
+                <label for="owner_name" class="crm-label">Owner name</label>
+                <input id="owner_name" name="owner_name" value="{{ old('owner_name', $setting->owner_name) }}" class="crm-field" required>
+                <x-input-error :messages="$errors->get('owner_name')" class="mt-2" />
+            </div>
+            <div>
+                <label for="owner_email" class="crm-label">Owner email</label>
+                <input id="owner_email" name="owner_email" type="email" value="{{ old('owner_email', $setting->owner_email) }}" class="crm-field">
+                <x-input-error :messages="$errors->get('owner_email')" class="mt-2" />
+            </div>
+            <div>
+                <label for="avatar" class="crm-label">Avatar</label>
+                <input id="avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp" class="crm-field">
+                <x-input-error :messages="$errors->get('avatar')" class="mt-2" />
+            </div>
         </div>
 
         <div class="crm-card grid gap-4 p-5 md:grid-cols-2">

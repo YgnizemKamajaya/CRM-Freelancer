@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -22,7 +21,6 @@ class Client extends Model
     ];
 
     protected $fillable = [
-        'user_id',
         'name',
         'company_name',
         'email',
@@ -47,11 +45,6 @@ class Client extends Model
         ];
     }
 
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
-    {
-        return $query->where('user_id', $userId);
-    }
-
     public function scopeSearch(Builder $query, ?string $search): Builder
     {
         if (! $search) {
@@ -65,11 +58,6 @@ class Client extends Model
                 ->orWhere('phone', 'like', "%{$search}%")
                 ->orWhere('whatsapp', 'like', "%{$search}%");
         });
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function deals(): HasMany

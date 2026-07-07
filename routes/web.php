@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AccessController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DealController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
@@ -17,7 +17,11 @@ Route::get('/', HomeController::class);
 
 Route::view('/offline', 'pwa.offline')->name('offline');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::get('/login', [AccessController::class, 'show'])->name('login');
+Route::post('/login', [AccessController::class, 'unlock']);
+Route::post('/logout', [AccessController::class, 'lock'])->name('logout');
+
+Route::middleware('pin')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('clients', ClientController::class);
@@ -49,10 +53,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports', ReportController::class)->name('reports.index');
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-require __DIR__.'/auth.php';

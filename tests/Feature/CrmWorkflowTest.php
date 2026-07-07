@@ -8,7 +8,6 @@ use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Setting;
 use App\Models\Task;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -18,11 +17,9 @@ class CrmWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_renders_for_authenticated_user(): void
+    public function test_dashboard_renders_after_pin_unlock(): void
     {
-        $user = User::factory()->create();
-
-        $this->actingAs($user)
+        $this->unlock()
             ->get('/dashboard')
             ->assertOk()
             ->assertSee('Dashboard');
@@ -30,13 +27,12 @@ class CrmWorkflowTest extends TestCase
 
     public function test_projects_index_renders_with_task_progress(): void
     {
-        $user = User::factory()->create();
-        $client = Client::factory()->create(['user_id' => $user->id]);
-        $project = Project::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'title' => 'Client portal']);
-        Task::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'project_id' => $project->id, 'status' => 'done', 'completed_at' => now()]);
-        Task::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'project_id' => $project->id, 'status' => 'pending']);
+        $client = Client::factory()->create();
+        $project = Project::factory()->create(['client_id' => $client->id, 'title' => 'Client portal']);
+        Task::factory()->create(['client_id' => $client->id, 'project_id' => $project->id, 'status' => 'done', 'completed_at' => now()]);
+        Task::factory()->create(['client_id' => $client->id, 'project_id' => $project->id, 'status' => 'pending']);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->get(route('projects.index'))
             ->assertOk()
             ->assertSee('Client portal')
@@ -45,10 +41,8 @@ class CrmWorkflowTest extends TestCase
 
     public function test_deal_can_be_converted_to_project_once(): void
     {
-        $user = User::factory()->create();
-        $client = Client::create(['user_id' => $user->id, 'name' => 'Acme', 'status' => 'lead']);
+        $client = Client::create(['name' => 'Acme', 'status' => 'lead']);
         $deal = Deal::create([
-            'user_id' => $user->id,
             'client_id' => $client->id,
             'title' => 'Website build',
             'value' => 5000,
@@ -58,8 +52,8 @@ class CrmWorkflowTest extends TestCase
             'status' => 'won',
         ]);
 
-        $this->actingAs($user)->post(route('deals.convert-to-project', $deal))->assertRedirect();
-        $this->actingAs($user)->post(route('deals.convert-to-project', $deal))->assertRedirect();
+        $this->unlock()->post(route('deals.convert-to-project', $deal))->assertRedirect();
+        $this->unlock()->post(route('deals.convert-to-project', $deal))->assertRedirect();
 
         $this->assertDatabaseCount('projects', 1);
         $this->assertDatabaseHas('activities', ['deal_id' => $deal->id, 'type' => 'status_update']);
@@ -67,10 +61,9 @@ class CrmWorkflowTest extends TestCase
 
     public function test_invoice_items_calculate_total_and_paid_status(): void
     {
-        $user = User::factory()->create();
-        $client = Client::create(['user_id' => $user->id, 'name' => 'Acme', 'status' => 'lead']);
+        $client = Client::create(['name' => 'Acme', 'status' => 'lead']);
 
-        $response = $this->actingAs($user)->post(route('invoices.store'), [
+        $response = $this->unlock()->post(route('invoices.store'), [
             'client_id' => $client->id,
             'invoice_number' => 'INV-TEST',
             'issue_date' => today()->toDateString(),
@@ -92,24 +85,12 @@ class CrmWorkflowTest extends TestCase
         $this->assertSame('paid', $invoice->status);
     }
 
-    public function test_user_cannot_open_another_users_client(): void
-    {
-        $owner = User::factory()->create();
-        $other = User::factory()->create();
-        $client = Client::create(['user_id' => $owner->id, 'name' => 'Private Client', 'status' => 'lead']);
-
-        $this->actingAs($other)
-            ->get(route('clients.show', $client))
-            ->assertNotFound();
-    }
-
     public function test_clients_can_be_filtered_by_tag(): void
     {
-        $user = User::factory()->create();
-        Client::factory()->create(['user_id' => $user->id, 'name' => 'Retainer Client', 'tags' => ['retainer']]);
-        Client::factory()->create(['user_id' => $user->id, 'name' => 'One-off Client', 'tags' => ['one-off']]);
+        Client::factory()->create(['name' => 'Retainer Client', 'tags' => ['retainer']]);
+        Client::factory()->create(['name' => 'One-off Client', 'tags' => ['one-off']]);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->get(route('clients.index', ['tag' => 'retainer']))
             ->assertOk()
             ->assertSee('Retainer Client')
@@ -118,17 +99,15 @@ class CrmWorkflowTest extends TestCase
 
     public function test_deal_stage_can_be_updated_inline(): void
     {
-        $user = User::factory()->create();
-        $client = Client::factory()->create(['user_id' => $user->id]);
+        $client = Client::factory()->create();
         $deal = Deal::factory()->create([
-            'user_id' => $user->id,
             'client_id' => $client->id,
             'stage' => 'new_inquiry',
             'status' => 'open',
             'probability' => 10,
         ]);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->post(route('deals.update-stage', $deal), ['stage' => 'won'])
             ->assertRedirect();
 
@@ -140,10 +119,9 @@ class CrmWorkflowTest extends TestCase
 
     public function test_task_can_be_quick_rescheduled(): void
     {
-        $user = User::factory()->create();
-        $task = Task::factory()->create(['user_id' => $user->id, 'status' => 'done', 'completed_at' => now()]);
+        $task = Task::factory()->create(['status' => 'done', 'completed_at' => now()]);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->post(route('tasks.reschedule', $task), ['preset' => 'tomorrow'])
             ->assertRedirect();
 
@@ -155,11 +133,10 @@ class CrmWorkflowTest extends TestCase
 
     public function test_project_quick_task_returns_to_project(): void
     {
-        $user = User::factory()->create();
-        $client = Client::factory()->create(['user_id' => $user->id]);
-        $project = Project::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'progress' => 90]);
+        $client = Client::factory()->create();
+        $project = Project::factory()->create(['client_id' => $client->id, 'progress' => 90]);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->post(route('tasks.store'), [
                 'context' => 'project',
                 'client_id' => $client->id,
@@ -181,19 +158,17 @@ class CrmWorkflowTest extends TestCase
 
     public function test_project_progress_syncs_from_task_completion(): void
     {
-        $user = User::factory()->create();
-        $client = Client::factory()->create(['user_id' => $user->id]);
+        $client = Client::factory()->create();
         $project = Project::factory()->create([
-            'user_id' => $user->id,
             'client_id' => $client->id,
             'status' => 'planned',
             'progress' => 0,
         ]);
-        $first = Task::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'project_id' => $project->id, 'status' => 'pending']);
-        $second = Task::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'project_id' => $project->id, 'status' => 'in_progress']);
-        Task::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'project_id' => $project->id, 'status' => 'done', 'completed_at' => now()]);
+        $first = Task::factory()->create(['client_id' => $client->id, 'project_id' => $project->id, 'status' => 'pending']);
+        $second = Task::factory()->create(['client_id' => $client->id, 'project_id' => $project->id, 'status' => 'in_progress']);
+        Task::factory()->create(['client_id' => $client->id, 'project_id' => $project->id, 'status' => 'done', 'completed_at' => now()]);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->post(route('tasks.complete', $first))
             ->assertRedirect();
 
@@ -201,7 +176,7 @@ class CrmWorkflowTest extends TestCase
         $this->assertSame(67, $project->progress);
         $this->assertSame('in_progress', $project->status);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->post(route('tasks.update-status', $second), ['status' => 'done'])
             ->assertRedirect();
 
@@ -213,9 +188,8 @@ class CrmWorkflowTest extends TestCase
 
     public function test_invoice_pdf_can_be_downloaded(): void
     {
-        $user = User::factory()->create();
-        $client = Client::factory()->create(['user_id' => $user->id]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'client_id' => $client->id, 'invoice_number' => 'INV-PDF']);
+        $client = Client::factory()->create();
+        $invoice = Invoice::factory()->create(['client_id' => $client->id, 'invoice_number' => 'INV-PDF']);
         $invoice->items()->create([
             'description' => 'Design sprint',
             'quantity' => 1,
@@ -223,19 +197,20 @@ class CrmWorkflowTest extends TestCase
             'total' => 1000,
         ]);
 
-        $this->actingAs($user)
+        $this->unlock()
             ->get(route('invoices.pdf', $invoice))
             ->assertOk()
             ->assertHeader('content-disposition', 'attachment; filename=INV-PDF.pdf');
     }
 
-    public function test_settings_logo_upload_is_stored(): void
+    public function test_settings_logo_and_avatar_uploads_are_stored(): void
     {
         Storage::fake('public');
-        $user = User::factory()->create();
 
-        $this->actingAs($user)
+        $this->unlock()
             ->put(route('settings.update'), [
+                'owner_name' => 'Demo Freelancer',
+                'owner_email' => 'demo@example.com',
                 'business_name' => 'Studio',
                 'business_email' => 'studio@example.com',
                 'business_phone' => '',
@@ -245,11 +220,13 @@ class CrmWorkflowTest extends TestCase
                 'invoice_prefix' => 'INV',
                 'invoice_next_number' => 1,
                 'default_tax_percentage' => 0,
+                'avatar' => UploadedFile::fake()->image('avatar.png', 128, 128),
                 'logo' => UploadedFile::fake()->image('logo.png', 128, 128),
             ])
             ->assertRedirect();
 
-        $setting = Setting::where('user_id', $user->id)->firstOrFail();
+        $setting = Setting::firstOrFail();
+        Storage::disk('public')->assertExists($setting->avatar_path);
         Storage::disk('public')->assertExists($setting->logo_path);
     }
 }

@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,6 @@ class InvoiceFactory extends Factory
         $total = fake()->numberBetween(1_000_000, 20_000_000);
 
         return [
-            'user_id' => User::factory(),
             'client_id' => Client::factory(),
             'invoice_number' => 'INV-'.fake()->unique()->numberBetween(1000, 9999),
             'issue_date' => fake()->dateTimeBetween('-2 months', 'now'),

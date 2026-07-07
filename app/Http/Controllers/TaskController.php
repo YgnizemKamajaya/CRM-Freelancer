@@ -21,7 +21,7 @@ class TaskController extends Controller
     public function index(Request $request): View
     {
         $filter = $request->input('filter', 'open');
-        $tasks = Task::ownedBy($request->user()->id)
+        $tasks = Task::query()
             ->with(['client', 'deal', 'project', 'invoice'])
             ->when($filter === 'today', fn ($query) => $query->whereDate('due_at', today())->whereNotIn('status', ['done', 'cancelled']))
             ->when($filter === 'upcoming', fn ($query) => $query->where('due_at', '>', now()->endOfDay())->whereNotIn('status', ['done', 'cancelled']))
@@ -58,7 +58,7 @@ class TaskController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $task = Task::create($this->normalizedData($request) + ['user_id' => $request->user()->id]);
+        $task = Task::create($this->normalizedData($request));
 
         $this->syncProjectProgress($task);
 
@@ -211,13 +211,11 @@ class TaskController extends Controller
      */
     private function formData(Request $request): array
     {
-        $userId = $request->user()->id;
-
         return [
-            'clients' => Client::ownedBy($userId)->orderBy('name')->get(),
-            'deals' => Deal::ownedBy($userId)->orderBy('title')->get(),
-            'projects' => Project::ownedBy($userId)->orderBy('title')->get(),
-            'invoices' => Invoice::ownedBy($userId)->orderByDesc('issue_date')->get(),
+            'clients' => Client::orderBy('name')->get(),
+            'deals' => Deal::orderBy('title')->get(),
+            'projects' => Project::orderBy('title')->get(),
+            'invoices' => Invoice::orderByDesc('issue_date')->get(),
             'types' => Task::TYPES,
             'statuses' => Task::STATUSES,
             'priorities' => Task::PRIORITIES,

@@ -20,7 +20,7 @@ class ProjectController extends Controller
 
     public function index(Request $request): View
     {
-        $projects = Project::ownedBy($request->user()->id)
+        $projects = Project::query()
             ->with(['client', 'deal'])
             ->withCount([
                 'tasks as active_tasks_count' => fn ($query) => $query->where('status', '!=', 'cancelled'),
@@ -46,7 +46,7 @@ class ProjectController extends Controller
 
         return view('projects.index', [
             'projects' => $projects,
-            'clients' => Client::ownedBy($request->user()->id)->orderBy('name')->get(),
+            'clients' => Client::orderBy('name')->get(),
             'statuses' => Project::STATUSES,
         ]);
     }
@@ -62,8 +62,8 @@ class ProjectController extends Controller
                 'currency' => 'IDR',
                 'progress' => 0,
             ]),
-            'clients' => Client::ownedBy($request->user()->id)->orderBy('name')->get(),
-            'deals' => Deal::ownedBy($request->user()->id)->with('client')->orderBy('title')->get(),
+            'clients' => Client::orderBy('name')->get(),
+            'deals' => Deal::with('client')->orderBy('title')->get(),
             'statuses' => Project::STATUSES,
             'priorities' => Project::PRIORITIES,
         ]);
@@ -71,7 +71,7 @@ class ProjectController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $project = Project::create($this->validated($request) + ['user_id' => $request->user()->id]);
+        $project = Project::create($this->validated($request));
 
         return redirect()->route('projects.show', $project)->with('status', 'Project created.');
     }
@@ -130,8 +130,8 @@ class ProjectController extends Controller
 
         return view('projects.form', [
             'project' => $project,
-            'clients' => Client::ownedBy($request->user()->id)->orderBy('name')->get(),
-            'deals' => Deal::ownedBy($request->user()->id)->with('client')->orderBy('title')->get(),
+            'clients' => Client::orderBy('name')->get(),
+            'deals' => Deal::with('client')->orderBy('title')->get(),
             'statuses' => Project::STATUSES,
             'priorities' => Project::PRIORITIES,
         ]);

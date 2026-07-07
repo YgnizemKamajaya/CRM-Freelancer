@@ -9,8 +9,14 @@
         ['label' => 'Reports', 'route' => 'reports.index', 'pattern' => 'reports.*', 'icon' => 'chart'],
         ['label' => 'Settings', 'route' => 'settings.edit', 'pattern' => 'settings.*', 'icon' => 'cog'],
     ];
-    $workspaceLogo = auth()->user()->setting?->logo_path;
-    $userAvatar = auth()->user()->avatar_path;
+    $setting = \App\Models\Setting::firstOrCreate([], [
+        'owner_name' => config('crm.owner_name'),
+        'owner_email' => config('crm.owner_email'),
+    ]);
+    $workspaceLogo = $setting->logo_path;
+    $ownerAvatar = $setting->avatar_path;
+    $ownerName = $setting->owner_name ?: config('crm.owner_name');
+    $ownerEmail = $setting->owner_email ?: config('crm.owner_email');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -25,7 +31,7 @@
         <script>
             (() => {
                 const themes = ['light', 'sepia', 'dark'];
-                const themeColors = { light: '#f8fafc', sepia: '#efe1cc', dark: '#17130f' };
+                const themeColors = { light: '#f8fafc', sepia: '#efe1cc', dark: '#111827' };
                 const storage = {
                     get(key, fallback) {
                         try {
@@ -167,28 +173,28 @@
 
                             <div class="relative" @keydown.escape.window="settingsOpen = false">
                                 <button type="button" class="crm-settings-trigger" @click="settingsOpen = ! settingsOpen" :aria-expanded="settingsOpen" aria-haspopup="menu" aria-label="Open account settings">
-                                    @if ($userAvatar)
-                                        <img src="{{ asset('storage/'.$userAvatar) }}" alt="" class="crm-avatar-img">
+                                    @if ($ownerAvatar)
+                                        <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="" class="crm-avatar-img">
                                     @else
-                                        <span class="crm-avatar-fallback">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
+                                        <span class="crm-avatar-fallback">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
                                     @endif
                                     <span class="hidden text-left md:grid">
-                                        <span class="crm-user-name">{{ auth()->user()->name }}</span>
-                                        <span class="crm-user-email">{{ auth()->user()->email }}</span>
+                                        <span class="crm-user-name">{{ $ownerName }}</span>
+                                        <span class="crm-user-email">{{ $ownerEmail }}</span>
                                     </span>
                                     <x-icon name="chevron-down" class="h-4 w-4" />
                                 </button>
 
                                 <div x-cloak x-show="settingsOpen" x-transition.origin.top.right @click.outside="settingsOpen = false" class="crm-settings-menu" role="menu">
                                     <div class="crm-settings-user">
-                                        @if ($userAvatar)
-                                            <img src="{{ asset('storage/'.$userAvatar) }}" alt="{{ auth()->user()->name }} avatar" class="crm-avatar-img is-lg">
+                                        @if ($ownerAvatar)
+                                            <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="{{ $ownerName }} avatar" class="crm-avatar-img is-lg">
                                         @else
-                                            <span class="crm-avatar-fallback is-lg">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
+                                            <span class="crm-avatar-fallback is-lg">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
                                         @endif
                                         <div class="min-w-0">
-                                            <p class="crm-user-name">{{ auth()->user()->name }}</p>
-                                            <p class="crm-user-email">{{ auth()->user()->email }}</p>
+                                            <p class="crm-user-name">{{ $ownerName }}</p>
+                                            <p class="crm-user-email">{{ $ownerEmail }}</p>
                                         </div>
                                     </div>
 
@@ -208,9 +214,9 @@
                                     </div>
 
                                     <div class="crm-settings-links">
-                                        <a wire:navigate href="{{ route('profile.edit') }}" role="menuitem" @click="settingsOpen = false">
+                                        <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="settingsOpen = false">
                                             <x-icon name="user" class="h-5 w-5" />
-                                            Profile
+                                            Owner profile
                                         </a>
                                         <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="settingsOpen = false">
                                             <x-icon name="cog" class="h-5 w-5" />
@@ -220,7 +226,7 @@
                                             @csrf
                                             <button role="menuitem">
                                                 <x-icon name="logout" class="h-5 w-5" />
-                                                Log out
+                                                Lock
                                             </button>
                                         </form>
                                     </div>

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,7 +26,6 @@ class Activity extends Model
     public const CONTACT_TYPES = ['general_note', 'call', 'whatsapp', 'email', 'meeting'];
 
     protected $fillable = [
-        'user_id',
         'client_id',
         'deal_id',
         'project_id',
@@ -42,16 +40,6 @@ class Activity extends Model
         return [
             'activity_at' => 'datetime',
         ];
-    }
-
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
-    {
-        return $query->where('user_id', $userId);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function client(): BelongsTo

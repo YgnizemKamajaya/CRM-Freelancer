@@ -23,10 +23,9 @@ class ReportController extends Controller
 
         $from = isset($data['from']) ? Carbon::parse($data['from'])->startOfDay() : now()->startOfMonth();
         $to = isset($data['to']) ? Carbon::parse($data['to'])->endOfDay() : now()->endOfDay();
-        $userId = auth()->id();
-        $paidInvoices = Invoice::ownedBy($userId)->where('status', 'paid')->whereBetween('paid_at', [$from, $to])->get();
-        $openDeals = Deal::ownedBy($userId)->where('status', 'open')->whereBetween('created_at', [$from, $to])->get();
-        $invoices = Invoice::ownedBy($userId)->whereBetween('issue_date', [$from->toDateString(), $to->toDateString()])->get();
+        $paidInvoices = Invoice::where('status', 'paid')->whereBetween('paid_at', [$from, $to])->get();
+        $openDeals = Deal::where('status', 'open')->whereBetween('created_at', [$from, $to])->get();
+        $invoices = Invoice::whereBetween('issue_date', [$from->toDateString(), $to->toDateString()])->get();
 
         return view('reports.index', [
             'cards' => [
@@ -37,17 +36,17 @@ class ReportController extends Controller
             ],
             'dealStageTotals' => $openDeals->groupBy('stage')->map->count(),
             'invoiceStatusTotals' => $invoices->groupBy('status')->map->count(),
-            'projectStatusTotals' => Project::ownedBy($userId)->whereBetween('created_at', [$from, $to])->get()->groupBy('status')->map->count(),
-            'taskTotals' => Task::ownedBy($userId)->whereBetween('due_at', [$from, $to])->get()->groupBy('status')->map->count(),
-            'topClients' => $this->topClients($userId, $from, $to),
+            'projectStatusTotals' => Project::whereBetween('created_at', [$from, $to])->get()->groupBy('status')->map->count(),
+            'taskTotals' => Task::whereBetween('due_at', [$from, $to])->get()->groupBy('status')->map->count(),
+            'topClients' => $this->topClients($from, $to),
             'from' => $from,
             'to' => $to,
         ]);
     }
 
-    private function topClients(int $userId, Carbon $from, Carbon $to): Collection
+    private function topClients(Carbon $from, Carbon $to): Collection
     {
-        return Client::ownedBy($userId)
+        return Client::query()
             ->withSum([
                 'invoices as paid_total' => fn ($query) => $query
                     ->where('status', 'paid')

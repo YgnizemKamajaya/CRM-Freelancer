@@ -18,7 +18,7 @@ class DealController extends Controller
 
     public function index(Request $request): View
     {
-        $deals = Deal::ownedBy($request->user()->id)
+        $deals = Deal::query()
             ->with('client')
             ->search($request->string('search')->toString())
             ->when($request->filled('stage'), fn ($query) => $query->where('stage', $request->stage))
@@ -27,7 +27,7 @@ class DealController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $pipeline = Deal::ownedBy($request->user()->id)
+        $pipeline = Deal::query()
             ->where('status', 'open')
             ->get()
             ->groupBy('stage');
@@ -47,7 +47,7 @@ class DealController extends Controller
                 'probability' => 10,
                 'currency' => 'IDR',
             ]),
-            'clients' => Client::ownedBy($request->user()->id)->orderBy('name')->get(),
+            'clients' => Client::orderBy('name')->get(),
             'stages' => Deal::STAGES,
             'sources' => Deal::SOURCES,
         ]);
@@ -55,7 +55,7 @@ class DealController extends Controller
 
     public function store(Request $request, DealService $dealService): RedirectResponse
     {
-        $deal = Deal::create($dealService->normalizeStage($this->validated($request)) + ['user_id' => $request->user()->id]);
+        $deal = Deal::create($dealService->normalizeStage($this->validated($request)));
 
         return redirect()->route('deals.show', $deal)->with('status', 'Deal created.');
     }
@@ -78,7 +78,7 @@ class DealController extends Controller
 
         return view('deals.form', [
             'deal' => $deal,
-            'clients' => Client::ownedBy($request->user()->id)->orderBy('name')->get(),
+            'clients' => Client::orderBy('name')->get(),
             'stages' => Deal::STAGES,
             'sources' => Deal::SOURCES,
         ]);

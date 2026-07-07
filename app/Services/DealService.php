@@ -44,7 +44,6 @@ class DealService
             }
 
             $project = Project::create([
-                'user_id' => $deal->user_id,
                 'client_id' => $deal->client_id,
                 'deal_id' => $deal->id,
                 'title' => $deal->title,
@@ -57,7 +56,6 @@ class DealService
             ]);
 
             Activity::create([
-                'user_id' => $deal->user_id,
                 'client_id' => $deal->client_id,
                 'deal_id' => $deal->id,
                 'project_id' => $project->id,

@@ -13,13 +13,18 @@ class SettingController extends Controller
     public function edit(Request $request): View
     {
         return view('settings.edit', [
-            'setting' => Setting::firstOrCreate(['user_id' => $request->user()->id]),
+            'setting' => Setting::firstOrCreate([], [
+                'owner_name' => config('crm.owner_name'),
+                'owner_email' => config('crm.owner_email'),
+            ]),
         ]);
     }
 
     public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([
+            'owner_name' => ['required', 'string', 'max:255'],
+            'owner_email' => ['nullable', 'email', 'max:255'],
             'business_name' => ['nullable', 'string', 'max:255'],
             'business_email' => ['nullable', 'email', 'max:255'],
             'business_phone' => ['nullable', 'string', 'max:50'],
@@ -29,10 +34,19 @@ class SettingController extends Controller
             'invoice_prefix' => ['required', 'string', 'max:12'],
             'invoice_next_number' => ['required', 'integer', 'min:1'],
             'default_tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $setting = Setting::firstOrCreate(['user_id' => $request->user()->id]);
+        $setting = Setting::firstOrCreate([]);
+
+        if ($request->hasFile('avatar')) {
+            if ($setting->avatar_path) {
+                Storage::disk('public')->delete($setting->avatar_path);
+            }
+
+            $data['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
         if ($request->hasFile('logo')) {
             if ($setting->logo_path) {
@@ -42,6 +56,7 @@ class SettingController extends Controller
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
 
+        unset($data['avatar']);
         unset($data['logo']);
 
         $setting->update($data);

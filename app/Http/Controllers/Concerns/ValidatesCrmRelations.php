@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 trait ValidatesCrmRelations
 {
-    protected function ownedExists(string $table): \Illuminate\Validation\Rules\Exists
+    protected function ownedExists(string $table): Exists
     {
-        return Rule::exists($table, 'id')->where('user_id', auth()->id());
+        return Rule::exists($table, 'id');
     }
 
     protected function authorizeOwner(Model $model): void
     {
-        abort_unless((int) $model->getAttribute('user_id') === (int) auth()->id(), 404);
+        abort_unless($model->exists, 404);
     }
 }

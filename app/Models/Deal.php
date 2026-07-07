@@ -35,7 +35,6 @@ class Deal extends Model
     ];
 
     protected $fillable = [
-        'user_id',
         'client_id',
         'title',
         'description',
@@ -63,11 +62,6 @@ class Deal extends Model
         ];
     }
 
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
-    {
-        return $query->where('user_id', $userId);
-    }
-
     public function scopeSearch(Builder $query, ?string $search): Builder
     {
         if (! $search) {
@@ -83,11 +77,6 @@ class Deal extends Model
     public function getWeightedValueAttribute(): float
     {
         return (float) $this->value * ($this->probability / 100);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function client(): BelongsTo

@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Client;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,7 +15,6 @@ class ClientFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
             'name' => fake()->name(),
             'company_name' => fake()->company(),
             'email' => fake()->unique()->safeEmail(),

@@ -16,46 +16,46 @@ class DashboardService
     /**
      * @return array<string, mixed>
      */
-    public function summary(int $userId): array
+    public function summary(): array
     {
-        $openDeals = Deal::ownedBy($userId)->where('status', 'open')->get(['value', 'probability']);
-        $unpaidInvoices = Invoice::ownedBy($userId)
+        $openDeals = Deal::where('status', 'open')->get(['value', 'probability']);
+        $unpaidInvoices = Invoice::query()
             ->whereNotIn('status', ['paid', 'cancelled'])
             ->get(['total', 'amount_paid', 'due_date']);
 
         return [
             'metrics' => [
-                'total_clients' => Client::ownedBy($userId)->whereNull('archived_at')->count(),
+                'total_clients' => Client::whereNull('archived_at')->count(),
                 'active_deals' => $openDeals->count(),
-                'active_projects' => Project::ownedBy($userId)->whereNotIn('status', ['completed', 'cancelled'])->count(),
+                'active_projects' => Project::whereNotIn('status', ['completed', 'cancelled'])->count(),
                 'pipeline_value' => $openDeals->sum(fn (Deal $deal) => (float) $deal->value),
                 'expected_revenue' => $openDeals->sum(fn (Deal $deal) => $deal->weighted_value),
                 'unpaid_invoice_amount' => $unpaidInvoices->sum(fn (Invoice $invoice) => $invoice->balance),
                 'overdue_invoice_amount' => $unpaidInvoices
                     ->filter(fn (Invoice $invoice) => $invoice->due_date?->lt(today()))
                     ->sum(fn (Invoice $invoice) => $invoice->balance),
-                'tasks_due_today' => Task::ownedBy($userId)
+                'tasks_due_today' => Task::query()
                     ->whereDate('due_at', Carbon::today())
                     ->whereNotIn('status', ['done', 'cancelled'])
                     ->count(),
             ],
-            'today_tasks' => $this->todayTasks($userId),
-            'overdue_tasks' => $this->overdueTasks($userId),
-            'active_deals_by_stage' => $this->dealsByStage($userId),
-            'recent_clients' => Client::ownedBy($userId)->latest()->limit(5)->get(),
-            'recent_activities' => Activity::ownedBy($userId)->with('client')->latest('activity_at')->latest()->limit(8)->get(),
-            'unpaid_invoices' => Invoice::ownedBy($userId)->with('client')
+            'today_tasks' => $this->todayTasks(),
+            'overdue_tasks' => $this->overdueTasks(),
+            'active_deals_by_stage' => $this->dealsByStage(),
+            'recent_clients' => Client::latest()->limit(5)->get(),
+            'recent_activities' => Activity::with('client')->latest('activity_at')->latest()->limit(8)->get(),
+            'unpaid_invoices' => Invoice::with('client')
                 ->whereNotIn('status', ['paid', 'cancelled'])
                 ->orderByRaw('due_date is null, due_date asc')
                 ->limit(5)
                 ->get(),
-            'monthly_revenue' => $this->monthlyRevenue($userId),
+            'monthly_revenue' => $this->monthlyRevenue(),
         ];
     }
 
-    public function todayTasks(int $userId): Collection
+    public function todayTasks(): Collection
     {
-        return Task::ownedBy($userId)
+        return Task::query()
             ->with(['client', 'project'])
             ->whereDate('due_at', today())
             ->whereNotIn('status', ['done', 'cancelled'])
@@ -64,9 +64,9 @@ class DashboardService
             ->get();
     }
 
-    public function overdueTasks(int $userId): Collection
+    public function overdueTasks(): Collection
     {
-        return Task::ownedBy($userId)
+        return Task::query()
             ->with(['client', 'project'])
             ->where('due_at', '<', now()->startOfDay())
             ->whereNotIn('status', ['done', 'cancelled'])
@@ -75,9 +75,9 @@ class DashboardService
             ->get();
     }
 
-    public function dealsByStage(int $userId): Collection
+    public function dealsByStage(): Collection
     {
-        return Deal::ownedBy($userId)
+        return Deal::query()
             ->where('status', 'open')
             ->selectRaw('stage, count(*) as total, coalesce(sum(value), 0) as value')
             ->groupBy('stage')
@@ -85,9 +85,9 @@ class DashboardService
             ->keyBy('stage');
     }
 
-    public function monthlyRevenue(int $userId): Collection
+    public function monthlyRevenue(): Collection
     {
-        return Invoice::ownedBy($userId)
+        return Invoice::query()
             ->where('status', 'paid')
             ->whereNotNull('paid_at')
             ->where('paid_at', '>=', now()->subMonths(5)->startOfMonth())

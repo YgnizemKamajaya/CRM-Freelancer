@@ -33,7 +33,6 @@ class Task extends Model
     public const PRIORITIES = Project::PRIORITIES;
 
     protected $fillable = [
-        'user_id',
         'client_id',
         'deal_id',
         'project_id',
@@ -53,16 +52,6 @@ class Task extends Model
             'due_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
-    }
-
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
-    {
-        return $query->where('user_id', $userId);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function client(): BelongsTo

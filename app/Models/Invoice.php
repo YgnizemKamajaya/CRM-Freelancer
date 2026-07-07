@@ -23,7 +23,6 @@ class Invoice extends Model
     ];
 
     protected $fillable = [
-        'user_id',
         'client_id',
         'project_id',
         'invoice_number',
@@ -56,19 +55,9 @@ class Invoice extends Model
         ];
     }
 
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
-    {
-        return $query->where('user_id', $userId);
-    }
-
     public function getBalanceAttribute(): float
     {
         return max(0, (float) $this->total - (float) $this->amount_paid);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function client(): BelongsTo

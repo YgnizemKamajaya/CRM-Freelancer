@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Client;
 use App\Models\Deal;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,6 @@ class DealFactory extends Factory
         $stage = fake()->randomElement(array_keys(Deal::STAGES));
 
         return [
-            'user_id' => User::factory(),
             'client_id' => Client::factory(),
             'title' => fake()->sentence(3),
             'description' => fake()->paragraph(),

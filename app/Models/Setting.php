@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Setting extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'owner_name',
+        'owner_email',
+        'avatar_path',
         'business_name',
         'business_email',
         'business_phone',
@@ -31,8 +32,4 @@ class Setting extends Model
         ];
     }
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
 }

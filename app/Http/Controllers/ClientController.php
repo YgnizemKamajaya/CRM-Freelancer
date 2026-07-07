@@ -16,7 +16,7 @@ class ClientController extends Controller
 
     public function index(Request $request): View
     {
-        $clients = Client::ownedBy($request->user()->id)
+        $clients = Client::query()
             ->withCount(['deals', 'projects', 'invoices'])
             ->search($request->string('search')->toString())
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
@@ -30,7 +30,7 @@ class ClientController extends Controller
         return view('clients.index', [
             'clients' => $clients,
             'statuses' => Client::STATUSES,
-            'tags' => Client::ownedBy($request->user()->id)
+            'tags' => Client::query()
                 ->get('tags')
                 ->pluck('tags')
                 ->flatten()
@@ -51,7 +51,7 @@ class ClientController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $client = Client::create($this->validated($request) + ['user_id' => $request->user()->id]);
+        $client = Client::create($this->validated($request));
 
         return redirect()->route('clients.show', $client)->with('status', 'Client created.');
     }
