@@ -1,59 +1,112 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Freelance CRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Mini CRM for solo freelancers. Built from the local PRD with Laravel 12, Breeze auth, Blade, Tailwind CSS 4, Flowbite, Vite, SQLite/MySQL-ready migrations, seeded demo data, and basic PWA support.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Breeze authentication with registration blocked after the first user exists.
+- Livewire-powered `wire:navigate` links for SPA-like authenticated navigation.
+- Dashboard KPIs for clients, deals, projects, pipeline value, expected revenue, unpaid invoices, overdue invoices, and due tasks.
+- Client CRUD with search, status/tag filters, profile page, tags, WhatsApp/email quick links, and activity timeline.
+- Deal pipeline with inline stage updates, probability, weighted value, mark won/lost, and convert-to-project action.
+- Project CRUD with status, priority, progress, deadline, tasks, invoices, and notes.
+- Task/follow-up workflow with open/today/upcoming/overdue/completed filters, quick reschedule, and complete/reopen actions.
+- Invoice CRUD with line items, total calculation, sent/paid actions, balance tracking, print view, and PDF download.
+- Reports page with date range filters for revenue, pipeline, invoice status, project status, task status, and top clients.
+- Settings page for business identity, logo upload, and invoice defaults.
+- PWA manifest, service worker, SVG + PNG install icons, and offline fallback.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Demo Account
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Seeded local account:
 
-## Learning Laravel
+- Email: `demo@example.com`
+- Password: `password`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Use demo credentials only for local development.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Local Setup
 
-## Laravel Sponsors
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+npm run build
+php artisan serve
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Open `http://127.0.0.1:8000`.
 
-### Premium Partners
+For active frontend development:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+npm run dev
+php artisan serve
+```
 
-## Contributing
+## Database
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Default local config uses SQLite:
 
-## Code of Conduct
+```env
+DB_CONNECTION=sqlite
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+For MySQL/MariaDB, set:
 
-## Security Vulnerabilities
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=freelance_crm
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Then run:
 
-## License
+```bash
+php artisan migrate --seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Production Notes
+
+Set production env:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.test
+```
+
+Deploy checklist:
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan storage:link
+```
+
+Use HTTPS for PWA installability. Service worker caches static/offline assets only; authenticated dashboard data is not aggressively cached.
+
+## Known MVP Limits
+
+- Blade-first implementation with Livewire `wire:navigate`; CRUD pages are not full Livewire components yet.
+- No client portal, payment gateway, email automation, WhatsApp API, or team permissions.
+
+## Roadmap
+
+- CSV import/export.
+- PDF invoice.
+- Proposal builder.
+- Time tracking.
+- WhatsApp/email template copy buttons.
+- Public invoice link and client portal.

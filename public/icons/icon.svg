@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+    <title id="title">Freelance CRM</title>
+    <desc id="desc">Minimal CRM app icon with dashboard panels and a client mark.</desc>
+    <defs>
+        <linearGradient id="surface" x1="76" y1="52" x2="424" y2="460" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#f8fafc"/>
+            <stop offset="1" stop-color="#e5e7eb"/>
+        </linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="104" fill="#111827"/>
+    <rect x="74" y="70" width="364" height="372" rx="58" fill="url(#surface)"/>
+    <rect x="120" y="124" width="128" height="92" rx="24" fill="#111827"/>
+    <rect x="120" y="244" width="272" height="34" rx="17" fill="#111827"/>
+    <rect x="120" y="310" width="186" height="34" rx="17" fill="#6b7280"/>
+    <circle cx="346" cy="170" r="46" fill="#111827"/>
+    <path d="M332 172l21 21 37-52" fill="none" stroke="#f8fafc" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M160 184v-74h68v20h-43v12h35v20h-35v22h-25Z" fill="#f8fafc"/>
+</svg>
