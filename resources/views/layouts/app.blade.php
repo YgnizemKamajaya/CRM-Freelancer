@@ -69,6 +69,7 @@
                 window.crmShell = () => ({
                     sidebarOpen: false,
                     settingsOpen: false,
+                    themeMenuOpen: false,
                     sidebarCollapsed: document.documentElement.dataset.sidebar === 'collapsed',
                     theme: document.documentElement.dataset.theme || 'light',
                     setTheme(value) {
@@ -117,6 +118,65 @@
                         </a>
                     @endforeach
                 </nav>
+
+                <!-- Profile Footer Section -->
+                <div class="crm-sidebar-foot">
+                    <div class="relative" x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false">
+                        <button type="button" class="crm-user-card w-full text-left" @click="menuOpen = ! menuOpen" :aria-expanded="menuOpen" style="border: 0; cursor: pointer; background: transparent; padding: 0.65rem 0.5rem;">
+                            @if ($ownerAvatar)
+                                <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="" class="crm-avatar-img">
+                            @else
+                                <span class="crm-avatar-fallback">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
+                            @endif
+                            
+                            <span class="crm-user-copy min-w-0 flex-1 grid ml-2">
+                                <span class="crm-user-name truncate">{{ $ownerName }}</span>
+                                <span class="crm-user-email truncate" style="font-size: 0.7rem;">Workspace Owner</span>
+                            </span>
+
+                            <span class="crm-user-copy ml-auto">
+                                <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="19" cy="12" r="1"></circle>
+                                    <circle cx="5" cy="12" r="1"></circle>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <!-- Dropdown menu popup above -->
+                        <div x-cloak x-show="menuOpen" x-transition.origin.bottom.left @click.outside="menuOpen = false" class="crm-settings-menu" style="bottom: calc(100% + 0.6rem); top: auto; left: 0; right: auto;" role="menu">
+                            <div class="crm-settings-user">
+                                @if ($ownerAvatar)
+                                    <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="{{ $ownerName }} avatar" class="crm-avatar-img is-lg">
+                                @else
+                                    <span class="crm-avatar-fallback is-lg">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
+                                @endif
+                                <div class="min-w-0">
+                                    <p class="crm-user-name">{{ $ownerName }}</p>
+                                    <p class="crm-user-email">{{ $ownerEmail }}</p>
+                                </div>
+                            </div>
+
+                            <div class="crm-settings-links">
+                                <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="menuOpen = false">
+                                    <x-icon name="user" class="h-5 w-5" />
+                                    Owner profile
+                                </a>
+                                <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="menuOpen = false">
+                                    <x-icon name="cog" class="h-5 w-5" />
+                                    Workspace settings
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button role="menuitem" style="border: 0; cursor: pointer; background: transparent; width: 100%; text-align: left;">
+                                        <x-icon name="logout" class="h-5 w-5" />
+                                        Lock Workspace
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </aside>
 
             <div x-cloak x-show="sidebarOpen" class="fixed inset-0 z-50 lg:hidden">
@@ -150,6 +210,65 @@
                             </a>
                         @endforeach
                     </nav>
+
+                    <!-- Mobile Profile Footer Section -->
+                    <div class="crm-sidebar-foot mt-auto">
+                        <div class="relative" x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false">
+                            <button type="button" class="crm-user-card w-full text-left" @click="menuOpen = ! menuOpen" :aria-expanded="menuOpen" style="border: 0; cursor: pointer; background: transparent; padding: 0.65rem 0.5rem;">
+                                @if ($ownerAvatar)
+                                    <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="" class="crm-avatar-img">
+                                @else
+                                    <span class="crm-avatar-fallback">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
+                                @endif
+                                
+                                <span class="crm-user-copy min-w-0 flex-1 grid ml-2">
+                                    <span class="crm-user-name truncate">{{ $ownerName }}</span>
+                                    <span class="crm-user-email truncate" style="font-size: 0.7rem;">Workspace Owner</span>
+                                </span>
+
+                                <span class="crm-user-copy ml-auto">
+                                    <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="19" cy="12" r="1"></circle>
+                                        <circle cx="5" cy="12" r="1"></circle>
+                                    </svg>
+                                </span>
+                            </button>
+
+                            <!-- Dropdown menu popup above -->
+                            <div x-cloak x-show="menuOpen" x-transition.origin.bottom.left @click.outside="menuOpen = false" class="crm-settings-menu" style="bottom: calc(100% + 0.6rem); top: auto; left: 0; right: auto;" role="menu">
+                                <div class="crm-settings-user">
+                                    @if ($ownerAvatar)
+                                        <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="{{ $ownerName }} avatar" class="crm-avatar-img is-lg">
+                                    @else
+                                        <span class="crm-avatar-fallback is-lg">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
+                                    @endif
+                                    <div class="min-w-0">
+                                        <p class="crm-user-name">{{ $ownerName }}</p>
+                                        <p class="crm-user-email">{{ $ownerEmail }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="crm-settings-links">
+                                    <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="menuOpen = false">
+                                        <x-icon name="user" class="h-5 w-5" />
+                                        Owner profile
+                                    </a>
+                                    <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="menuOpen = false">
+                                        <x-icon name="cog" class="h-5 w-5" />
+                                        Workspace settings
+                                    </a>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button role="menuitem" style="border: 0; cursor: pointer; background: transparent; width: 100%; text-align: left;">
+                                            <x-icon name="logout" class="h-5 w-5" />
+                                            Lock Workspace
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </aside>
             </div>
 
@@ -171,67 +290,16 @@
                                 <a wire:navigate href="{{ route('deals.create') }}" class="crm-button-primary"><x-icon name="plus" class="h-4 w-4" />Deal</a>
                             </div>
 
-                            <div class="relative" @keydown.escape.window="settingsOpen = false">
-                                <button type="button" class="crm-settings-trigger" @click="settingsOpen = ! settingsOpen" :aria-expanded="settingsOpen" aria-haspopup="menu" aria-label="Open account settings">
-                                    @if ($ownerAvatar)
-                                        <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="" class="crm-avatar-img">
-                                    @else
-                                        <span class="crm-avatar-fallback">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
-                                    @endif
-                                    <span class="hidden text-left md:grid">
-                                        <span class="crm-user-name">{{ $ownerName }}</span>
-                                        <span class="crm-user-email">{{ $ownerEmail }}</span>
-                                    </span>
-                                    <x-icon name="chevron-down" class="h-4 w-4" />
+                            <!-- Lock Workspace Shutdown Button -->
+                            <form method="POST" action="{{ route('logout') }}" class="flex">
+                                @csrf
+                                <button type="submit" class="crm-icon-button" aria-label="Lock workspace" title="Lock workspace">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                        <line x1="12" y1="2" x2="12" y2="12"></line>
+                                    </svg>
                                 </button>
-
-                                <div x-cloak x-show="settingsOpen" x-transition.origin.top.right @click.outside="settingsOpen = false" class="crm-settings-menu" role="menu">
-                                    <div class="crm-settings-user">
-                                        @if ($ownerAvatar)
-                                            <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="{{ $ownerName }} avatar" class="crm-avatar-img is-lg">
-                                        @else
-                                            <span class="crm-avatar-fallback is-lg">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
-                                        @endif
-                                        <div class="min-w-0">
-                                            <p class="crm-user-name">{{ $ownerName }}</p>
-                                            <p class="crm-user-email">{{ $ownerEmail }}</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="crm-theme-panel" role="radiogroup" aria-label="Theme">
-                                        <button type="button" class="crm-theme-choice" :class="{ 'is-active': theme === 'light' }" @click="setTheme('light')" role="radio" :aria-checked="theme === 'light'" aria-label="Light theme">
-                                            <span class="crm-theme-swatch is-light"></span>
-                                            <span class="crm-theme-label">Light</span>
-                                        </button>
-                                        <button type="button" class="crm-theme-choice" :class="{ 'is-active': theme === 'sepia' }" @click="setTheme('sepia')" role="radio" :aria-checked="theme === 'sepia'" aria-label="Sepia theme">
-                                            <span class="crm-theme-swatch is-sepia"></span>
-                                            <span class="crm-theme-label">Sepia</span>
-                                        </button>
-                                        <button type="button" class="crm-theme-choice" :class="{ 'is-active': theme === 'dark' }" @click="setTheme('dark')" role="radio" :aria-checked="theme === 'dark'" aria-label="Dark theme">
-                                            <span class="crm-theme-swatch is-dark"></span>
-                                            <span class="crm-theme-label">Dark</span>
-                                        </button>
-                                    </div>
-
-                                    <div class="crm-settings-links">
-                                        <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="settingsOpen = false">
-                                            <x-icon name="user" class="h-5 w-5" />
-                                            Owner profile
-                                        </a>
-                                        <a wire:navigate href="{{ route('settings.edit') }}" role="menuitem" @click="settingsOpen = false">
-                                            <x-icon name="cog" class="h-5 w-5" />
-                                            Workspace settings
-                                        </a>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button role="menuitem">
-                                                <x-icon name="logout" class="h-5 w-5" />
-                                                Lock
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </header>
@@ -263,6 +331,88 @@
                     @endforeach
                 </div>
             </nav>
+
+            <!-- Floating Theme Toggle Selector -->
+            <div class="fixed z-50 bottom-6 right-6 max-lg:bottom-20 max-lg:right-4">
+                <!-- Collapsible Menu -->
+                <div x-cloak x-show="themeMenuOpen" x-transition.origin.bottom.right @click.outside="themeMenuOpen = false" 
+                     class="absolute bottom-full right-0 mb-3 flex flex-col gap-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 shadow-2xl min-w-[150px]"
+                     style="box-shadow: var(--crm-shadow-panel);">
+                    
+                    <!-- Morning Sun (Light) -->
+                    <button type="button" 
+                            class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;"
+                            :style="theme === 'light' ? 'background: var(--crm-hover); color: var(--crm-heading);' : ''"
+                            @click="setTheme('light'); themeMenuOpen = false">
+                        <svg class="text-amber-500" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <span class="ml-2">Morning Sun</span>
+                    </button>
+
+                    <!-- Sunset (Sepia) -->
+                    <button type="button" 
+                            class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;"
+                            :style="theme === 'sepia' ? 'background: var(--crm-hover); color: var(--crm-heading);' : ''"
+                            @click="setTheme('sepia'); themeMenuOpen = false">
+                        <svg class="text-orange-500" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 10a4 4 0 0 0-4 4h8a4 4 0 0 0-4-4z"></path>
+                            <path d="M2 20h20M12 2v3M4.93 6.93l2.12 2.12M19.07 6.93l-2.12 2.12"></path>
+                        </svg>
+                        <span class="ml-2">Sunset</span>
+                    </button>
+
+                    <!-- Moon (Dark) -->
+                    <button type="button" 
+                            class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;"
+                            :style="theme === 'dark' ? 'background: var(--crm-hover); color: var(--crm-heading);' : ''"
+                            @click="setTheme('dark'); themeMenuOpen = false">
+                        <svg class="text-indigo-400" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <span class="ml-2">Moon</span>
+                    </button>
+                </div>
+
+                <!-- Floating Trigger Button -->
+                <button type="button" @click="themeMenuOpen = !themeMenuOpen" 
+                        class="flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none"
+                        style="cursor: pointer; box-shadow: var(--crm-shadow-panel); width: 2.75rem; height: 2.75rem;"
+                        aria-label="Toggle Theme">
+                    <!-- Sun Icon -->
+                    <svg x-show="theme === 'light'" class="text-amber-500" style="width: 1.35rem; height: 1.35rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <!-- Sunset Icon -->
+                    <svg x-show="theme === 'sepia'" class="text-orange-500" style="width: 1.35rem; height: 1.35rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 10a4 4 0 0 0-4 4h8a4 4 0 0 0-4-4z"></path>
+                        <path d="M2 20h20M12 2v3M4.93 6.93l2.12 2.12M19.07 6.93l-2.12 2.12"></path>
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg x-show="theme === 'dark'" class="text-indigo-400" style="width: 1.35rem; height: 1.35rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
         @livewireScripts
     </body>
