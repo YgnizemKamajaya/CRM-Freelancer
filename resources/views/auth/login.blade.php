@@ -16,7 +16,7 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
     <title>Lock Screen - {{ config('app.name', 'Freelance CRM') }}</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,6 +116,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -200,16 +201,37 @@
         }
 
         @keyframes dotPop {
-            0% { transform: scale(0.6); }
-            100% { transform: scale(1.2); }
+            0% {
+                transform: scale(0.6);
+            }
+
+            100% {
+                transform: scale(1.2);
+            }
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-6px);
+            }
+
+            40% {
+                transform: translateX(6px);
+            }
+
+            60% {
+                transform: translateX(-4px);
+            }
+
+            80% {
+                transform: translateX(4px);
+            }
         }
 
         /* Status message */
@@ -331,8 +353,15 @@
         }
 
         @keyframes popIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .success-icon {
@@ -392,142 +421,186 @@
         .fixed {
             position: fixed;
         }
+
         .z-50 {
             z-index: 50;
         }
+
         .bottom-6 {
             bottom: 1.5rem;
         }
+
         .right-6 {
             right: 1.5rem;
         }
+
         .mb-3 {
             margin-bottom: 0.75rem;
         }
+
         .rounded-xl {
             border-radius: 0.75rem;
         }
+
         .bg-white {
             background-color: #ffffff;
         }
+
         .dark\:bg-gray-800:is([data-theme='dark'] *) {
             background-color: #1f2937;
         }
+
         .border-gray-200 {
             border-color: #e5e7eb;
         }
+
         .dark\:border-gray-700:is([data-theme='dark'] *) {
             border-color: #374151;
         }
+
         .p-2 {
             padding: 0.5rem;
         }
+
         .shadow-2xl {
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
+
         .min-w-\[150px\] {
             min-width: 150px;
         }
+
         .absolute {
             position: absolute;
         }
+
         .bottom-full {
             bottom: 100%;
         }
+
         .right-0 {
             right: 0;
         }
+
         .hidden {
             display: none !important;
         }
+
         .flex {
             display: flex;
         }
+
         .flex-col {
             flex-direction: column;
         }
+
         .gap-1 {
             gap: 0.25rem;
         }
+
         .gap-3 {
             gap: 0.75rem;
         }
+
         .w-full {
             width: 100%;
         }
+
         .px-3 {
             padding-left: 0.75rem;
             padding-right: 0.75rem;
         }
+
         .py-2 {
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
         }
+
         .rounded-lg {
             border-radius: 0.5rem;
         }
+
         .text-xs {
             font-size: 0.75rem;
         }
+
         .font-semibold {
             font-weight: 600;
         }
+
         .transition-colors {
             transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
             transition-duration: 150ms;
         }
+
         .text-gray-700 {
             color: #374151;
         }
+
         .dark\:text-gray-300:is([data-theme='dark'] *) {
             color: #d1d5db;
         }
+
         .hover\:bg-gray-100:hover {
             background-color: #f3f4f6;
         }
+
         .dark\:hover\:bg-gray-700:hover:is([data-theme='dark'] *) {
             background-color: #374151;
         }
+
         .ml-2 {
             margin-left: 0.5rem;
         }
+
         .items-center {
             align-items: center;
         }
+
         .justify-center {
             justify-content: center;
         }
+
         .rounded-full {
             border-radius: 9999px;
         }
+
         .border-gray-200 {
             border-color: #e5e7eb;
         }
+
         .hover\:scale-110:hover {
             transform: scale(1.1);
         }
+
         .active\:scale-95:active {
             transform: scale(0.95);
         }
+
         .transition-all {
             transition-property: all;
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
             transition-duration: 150ms;
         }
+
         .duration-200 {
             transition-duration: 200ms;
         }
+
         .focus\:outline-none:focus {
             outline: 2px solid transparent;
             outline-offset: 2px;
         }
+
         .text-amber-500 {
             color: #f59e0b;
         }
+
         .text-orange-500 {
             color: #f97316;
         }
+
         .text-indigo-400 {
             color: #818cf8;
         }
@@ -542,7 +615,7 @@
         <div class="profile-section">
             <div class="avatar-container">
                 @if ($ownerAvatar)
-                    <img src="{{ asset('storage/'.$ownerAvatar) }}" alt="" class="avatar-img">
+                    <img src="{{ asset('storage/' . $ownerAvatar) }}" alt="" class="avatar-img">
                 @else
                     <span class="avatar-fallback">{{ str($ownerName)->substr(0, 1)->upper() }}</span>
                 @endif
@@ -602,13 +675,15 @@
     <!-- Floating Theme Toggle Selector -->
     <div class="fixed z-50 bottom-6 right-6" id="theme-toggle-container">
         <!-- Collapsible Menu -->
-        <div id="theme-menu" class="absolute bottom-full right-0 mb-3 flex flex-col gap-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 shadow-2xl min-w-[150px] hidden"
-             style="box-shadow: var(--crm-shadow-panel);">
-            <!-- Morning Sun -->
+        <div id="theme-menu"
+            class="absolute bottom-full right-0 mb-3 flex flex-col gap-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 shadow-2xl min-w-[150px] hidden"
+            style="box-shadow: var(--crm-shadow-panel);">
+            <!-- Light -->
             <button type="button" data-theme-btn="light"
-                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;">
-                <svg class="text-amber-500" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;">
+                <svg class="text-amber-500" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
                     <line x1="12" y1="1" x2="12" y2="3"></line>
                     <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -619,36 +694,40 @@
                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                 </svg>
-                <span class="ml-2">Morning Sun</span>
+                <span class="ml-2">Light</span>
             </button>
             <!-- Sunset -->
             <button type="button" data-theme-btn="sepia"
-                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;">
-                <svg class="text-orange-500" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;">
+                <svg class="text-orange-500" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 10a4 4 0 0 0-4 4h8a4 4 0 0 0-4-4z"></path>
                     <path d="M2 20h20M12 2v3M4.93 6.93l2.12 2.12M19.07 6.93l-2.12 2.12"></path>
                 </svg>
                 <span class="ml-2">Sunset</span>
             </button>
-            <!-- Moon -->
+            <!-- Dark -->
             <button type="button" data-theme-btn="dark"
-                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;">
-                <svg class="text-indigo-400" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                style="border: 0; cursor: pointer; background: transparent; display: flex; align-items: center;">
+                <svg class="text-indigo-400" style="width: 1.15rem; height: 1.15rem;" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
-                <span class="ml-2">Moon</span>
+                <span class="ml-2">Dark</span>
             </button>
         </div>
 
         <!-- Floating Trigger Button -->
         <button type="button" id="theme-trigger-btn"
-                class="flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none"
-                style="cursor: pointer; box-shadow: var(--crm-shadow-panel); width: 2.75rem; height: 2.75rem;"
-                aria-label="Toggle Theme">
+            class="flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none"
+            style="cursor: pointer; box-shadow: var(--crm-shadow-panel); width: 2.75rem; height: 2.75rem;"
+            aria-label="Toggle Theme">
             <!-- Sun Icon -->
-            <svg id="theme-icon-light" class="text-amber-500 hidden" style="width: 1.35rem; height: 1.35rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg id="theme-icon-light" class="text-amber-500 hidden" style="width: 1.35rem; height: 1.35rem;"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
                 <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -660,12 +739,16 @@
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
             <!-- Sunset Icon -->
-            <svg id="theme-icon-sepia" class="text-orange-500 hidden" style="width: 1.35rem; height: 1.35rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg id="theme-icon-sepia" class="text-orange-500 hidden" style="width: 1.35rem; height: 1.35rem;"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M12 10a4 4 0 0 0-4 4h8a4 4 0 0 0-4-4z"></path>
                 <path d="M2 20h20M12 2v3M4.93 6.93l2.12 2.12M19.07 6.93l-2.12 2.12"></path>
             </svg>
-            <!-- Moon Icon -->
-            <svg id="theme-icon-dark" class="text-indigo-400 hidden" style="width: 1.35rem; height: 1.35rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Dark Icon -->
+            <svg id="theme-icon-dark" class="text-indigo-400 hidden" style="width: 1.35rem; height: 1.35rem;"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
         </button>
@@ -688,7 +771,7 @@
                 set(key, value) {
                     try {
                         localStorage.setItem(key, value);
-                    } catch {}
+                    } catch { }
                 },
             };
             const applyTheme = (theme) => {
