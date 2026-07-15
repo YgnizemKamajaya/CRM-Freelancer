@@ -52,6 +52,15 @@
             <div class="flex justify-between"><span>Tax</span><span>{{ $money($invoice->tax) }}</span></div>
             <div class="flex justify-between border-t border-gray-300 pt-2 text-lg font-bold"><span>Total</span><span>{{ $money($invoice->total) }}</span></div>
         </div>
+
+        @if($setting?->signature_path)
+        <div class="mt-12 flex flex-col items-end gap-2">
+            <div class="rounded border border-gray-200 p-2" style="background-image: repeating-conic-gradient(#d1d5db 0% 25%, #f9fafb 0% 50%) 0 0 / 12px 12px;">
+                <img src="{{ asset('storage/' . $setting->signature_path) }}" alt="Tanda Tangan" class="max-h-20 max-w-[200px] object-contain">
+            </div>
+            <p class="text-xs text-gray-500 border-t border-gray-200 pt-1">{{ $setting->owner_name ?? 'Freelance CRM' }}</p>
+        </div>
+        @endif
     </main>
 </body>
 </html>

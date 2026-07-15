@@ -83,6 +83,7 @@
             });
         })();
     </script>
+    @stack('head')
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -366,7 +367,7 @@
         </nav>
 
         <!-- Floating Theme Toggle Selector -->
-        <div class="fixed z-50 bottom-6 right-6 max-lg:bottom-20 max-lg:right-4">
+        <div class="fixed bottom-6 right-6 max-lg:bottom-20 max-lg:right-4" style="z-index: 40;">
             <!-- Collapsible Menu -->
             <div x-cloak x-show="themeMenuOpen" x-transition.origin.bottom.right @click.outside="themeMenuOpen = false"
                 class="absolute bottom-full right-0 mb-3 flex flex-col gap-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 shadow-2xl min-w-[150px]"
@@ -458,6 +459,7 @@
             </button>
         </div>
     </div>
+    @stack('scripts')
     @livewireScripts
 </body>
 

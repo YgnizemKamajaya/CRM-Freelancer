@@ -10,6 +10,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ESignatureController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,4 +54,7 @@ Route::middleware('pin')->group(function () {
     Route::get('/reports', ReportController::class)->name('reports.index');
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::post('/e-signature', [ESignatureController::class, 'store'])->name('esignature.store');
+    Route::delete('/e-signature', [ESignatureController::class, 'destroy'])->name('esignature.destroy');
 });

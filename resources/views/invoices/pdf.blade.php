@@ -1,6 +1,16 @@
 @php
     $money = fn ($value) => 'IDR '.number_format((float) $value, 0, ',', '.');
     $setting = $setting ?? \App\Models\Setting::first();
+
+    // Embed signature as base64 data URI — DomPDF cannot resolve public URL paths
+    $sigDataUri = null;
+    if ($setting?->signature_path) {
+        $sigPath = storage_path('app/public/' . $setting->signature_path);
+        if (file_exists($sigPath)) {
+            $mime = mime_content_type($sigPath) ?: 'image/png';
+            $sigDataUri = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($sigPath));
+        }
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +30,8 @@
         .totals { width: 260px; margin-left: auto; margin-top: 24px; }
         .totals td { border: 0; padding: 4px 0; }
         .total-row td { border-top: 1px solid #d1d5db; font-size: 16px; font-weight: bold; padding-top: 10px; }
+        .sig-block { margin-top: 48px; text-align: right; }
+        .sig-label { margin-top: 8px; padding-top: 6px; border-top: 1px solid #d1d5db; font-size: 10px; color: #6b7280; text-align: right; }
     </style>
 </head>
 <body>
@@ -79,5 +91,12 @@
         <tr><td>Tax</td><td class="right">{{ $money($invoice->tax) }}</td></tr>
         <tr class="total-row"><td>Total</td><td class="right">{{ $money($invoice->total) }}</td></tr>
     </table>
+
+    @if($sigDataUri)
+    <div class="sig-block">
+        <img src="{{ $sigDataUri }}" alt="Tanda Tangan" style="max-height: 80px; max-width: 200px;">
+        <div class="sig-label">{{ $setting->owner_name ?? 'Freelance CRM' }}</div>
+    </div>
+    @endif
 </body>
 </html>

@@ -19,6 +19,7 @@ class Setting extends Model
         'business_whatsapp',
         'business_website',
         'logo_path',
+        'signature_path',
         'default_currency',
         'invoice_prefix',
         'invoice_next_number',

@@ -13,7 +13,7 @@
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('invoices.print', $invoice) }}" class="crm-button-secondary" target="_blank">Print</a>
-                <a href="{{ route('invoices.pdf', $invoice) }}" class="crm-button-secondary">PDF</a>
+                <a href="{{ route('invoices.pdf', $invoice) }}" class="crm-button-secondary" target="_blank">PDF</a>
                 <a href="{{ route('invoices.edit', $invoice) }}" class="crm-button-secondary">Edit</a>
                 <form method="POST" action="{{ route('invoices.mark-sent', $invoice) }}">@csrf<button class="crm-button-secondary">Mark sent</button></form>
                 <form method="POST" action="{{ route('invoices.mark-paid', $invoice) }}">@csrf<button class="crm-button-primary">Mark paid</button></form>
