@@ -150,11 +150,6 @@
                         <span class="crm-brand-subtitle">Client work cockpit</span>
                     </span>
                 </a>
-                <button type="button" class="crm-icon-button" @click="toggleSidebar"
-                    :aria-label="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-                    :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
-                    <x-icon name="sidebar" class="h-5 w-5" />
-                </button>
             </div>
 
             <nav aria-label="Main navigation" class="crm-nav">
@@ -179,11 +174,19 @@
             </nav>
 
             <!-- Profile Footer Section -->
-            <div class="crm-sidebar-foot">
+            <div class="crm-sidebar-foot relative">
+                <!-- Floating Sidebar Collapse Toggle (Aligned 50:50 on footer divider line and right border) -->
+                <button type="button" class="crm-sidebar-toggle-btn" @click="toggleSidebar"
+                    :aria-label="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+                    :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+                    <svg class="h-4 w-4 transition-transform duration-300" :class="{ 'rotate-180': sidebarCollapsed }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
                 <div class="relative" x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false">
                     <button type="button" class="crm-user-card w-full text-left" @click="menuOpen = ! menuOpen"
                         :aria-expanded="menuOpen"
-                        style="border: 0; cursor: pointer; background: transparent; padding: 0.65rem 0.5rem;">
+                        style="border: 0; cursor: pointer; background: transparent;">
                         @if ($ownerAvatar)
                             <img src="{{ asset('storage/' . $ownerAvatar) }}" alt="" class="crm-avatar-img">
                         @else
@@ -375,6 +378,27 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
+                        <!-- Real-time Clock in Topbar -->
+                        <div x-data="{
+                            time: '',
+                            date: '',
+                            init() {
+                                const update = () => {
+                                    const now = new Date();
+                                    this.time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                    this.date = now.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+                                };
+                                update();
+                                setInterval(update, 1000);
+                            }
+                        }" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-900 dark:text-gray-100 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="font-bold tracking-tight" x-text="time || '{{ now()->format('H:i:s') }}'"></span>
+                            <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 hidden sm:inline" x-text="date"></span>
+                        </div>
+
                         <button type="button" class="crm-icon-button" @click="commandOpen = true"
                             aria-label="Buka pencarian cepat" title="Quick search / add (Ctrl+K)">
                             <x-icon name="search" class="h-5 w-5" />

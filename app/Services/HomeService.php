@@ -12,6 +12,9 @@ use App\Models\Task;
 use App\Models\VaultFile;
 use Illuminate\Support\Collection;
 
+use App\Models\Project;
+use App\Models\Setting;
+
 /**
  * Aggregates the "command centre" home (Dashboard 2.0).
  * Reuses FinanceService / JournalService; leaves the legacy DashboardService untouched.
@@ -40,8 +43,14 @@ class HomeService
         $financeSummary = $this->finance->summary();
         $journalOverview = $this->journal->overview();
 
+        $quotes = config('quotes.quotes', []);
+        $quote = ! empty($quotes) ? $quotes[now()->dayOfYear % count($quotes)] : null;
+        $setting = Setting::first();
+
         return [
             'greeting' => $this->greeting(),
+            'owner_name' => $setting?->owner_name ?: config('crm.owner_name', 'Freelancer'),
+            'quote' => $quote,
             'today_label' => now()->translatedFormat('l, d F Y'),
 
             // Card 1 — Focus today
@@ -62,6 +71,13 @@ class HomeService
 
             // Card 4 — Needs attention (the signature card)
             'alerts' => $this->alerts($financeSummary['budget_usage']),
+
+            // Active Projects & Invoices
+            'active_projects' => $this->activeProjects(),
+            'upcoming_invoices' => $this->upcomingInvoices(),
+
+            // Mini Calendar & Agenda
+            'calendar_data' => $this->calendarData(),
 
             // Card 5 — Pipeline
             'pipeline' => $this->pipeline(),
@@ -210,4 +226,128 @@ class HomeService
             'count' => $open->count(),
         ];
     }
+
+    private function activeProjects(): Collection
+    {
+        return Project::query()
+            ->with(['client'])
+            ->withCount(['tasks', 'tasks as done_tasks_count' => fn ($q) => $q->where('status', 'done')])
+            ->whereIn('status', ['in_progress', 'planned', 'waiting_client', 'revision'])
+            ->orderByRaw('deadline IS NULL, deadline ASC')
+            ->limit(4)
+            ->get();
+    }
+
+    private function upcomingInvoices(): Collection
+    {
+        return Invoice::query()
+            ->with(['client'])
+            ->whereNotIn('status', ['paid', 'cancelled'])
+            ->whereDate('due_date', '>=', today())
+            ->orderBy('due_date')
+            ->limit(4)
+            ->get();
+    }
+
+    private function calendarData(): array
+    {
+        $now = now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+
+        $journalDays = JournalEntry::query()
+            ->whereBetween('entry_date', [$startOfMonth, $endOfMonth])
+            ->pluck('entry_date')
+            ->map(fn ($d) => $d->day)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $taskDays = Task::query()
+            ->whereBetween('due_at', [$startOfMonth, $endOfMonth])
+            ->whereNotIn('status', ['done', 'cancelled'])
+            ->pluck('due_at')
+            ->map(fn ($d) => $d->day)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $projectDays = Project::query()
+            ->whereBetween('deadline', [$startOfMonth, $endOfMonth])
+            ->whereIn('status', ['in_progress', 'planned', 'waiting_client', 'revision'])
+            ->pluck('deadline')
+            ->map(fn ($d) => $d->day)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $invoiceDays = Invoice::query()
+            ->whereBetween('due_date', [$startOfMonth, $endOfMonth])
+            ->whereNotIn('status', ['paid', 'cancelled'])
+            ->pluck('due_date')
+            ->map(fn ($d) => $d->day)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // Collect agenda items for current month list
+        $agendas = collect();
+
+        Project::query()
+            ->whereBetween('deadline', [$startOfMonth, $endOfMonth])
+            ->whereIn('status', ['in_progress', 'planned', 'waiting_client', 'revision'])
+            ->get()
+            ->each(function (Project $p) use ($agendas) {
+                $agendas->push([
+                    'type' => 'project',
+                    'date' => $p->deadline,
+                    'title' => 'Deadline: '.$p->title,
+                    'badge' => 'Project',
+                    'href' => route('projects.show', $p),
+                ]);
+            });
+
+        Task::query()
+            ->whereBetween('due_at', [$startOfMonth, $endOfMonth])
+            ->whereNotIn('status', ['done', 'cancelled'])
+            ->get()
+            ->each(function (Task $t) use ($agendas) {
+                $agendas->push([
+                    'type' => 'task',
+                    'date' => $t->due_at,
+                    'title' => 'Task: '.$t->title,
+                    'badge' => 'Task',
+                    'href' => route('tasks.index'),
+                ]);
+            });
+
+        Invoice::query()
+            ->whereBetween('due_date', [$startOfMonth, $endOfMonth])
+            ->whereNotIn('status', ['paid', 'cancelled'])
+            ->get()
+            ->each(function (Invoice $i) use ($agendas) {
+                $agendas->push([
+                    'type' => 'invoice',
+                    'date' => $i->due_date,
+                    'title' => 'Invoice: '.$i->invoice_number,
+                    'badge' => 'Invoice',
+                    'href' => route('invoices.show', $i),
+                ]);
+            });
+
+        return [
+            'year' => $now->year,
+            'month' => $now->month,
+            'month_name' => $now->translatedFormat('F Y'),
+            'days_in_month' => $now->daysInMonth,
+            'first_day_of_week' => $startOfMonth->dayOfWeek, // 0 = Sunday, 1 = Monday...
+            'today_day' => $now->day,
+            'journal_days' => $journalDays,
+            'task_days' => $taskDays,
+            'project_days' => $projectDays,
+            'invoice_days' => $invoiceDays,
+            'agendas' => $agendas->sortBy('date')->values()->take(5),
+        ];
+    }
 }
+

@@ -294,6 +294,33 @@
 
     .crm-sidebar {
         width: var(--crm-sidebar-width);
+        position: relative;
+    }
+
+    .crm-sidebar-toggle-floating {
+        position: absolute;
+        top: 25%;
+        right: 0;
+        transform: translate(50%, -50%);
+        z-index: 50;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.85rem;
+        height: 1.85rem;
+        border-radius: 9999px;
+        border: 1px solid var(--crm-sidebar-line);
+        background: var(--crm-surface);
+        color: var(--crm-sidebar-text);
+        box-shadow: var(--crm-shadow-soft, 0 2px 6px rgba(0, 0, 0, 0.12));
+        cursor: pointer;
+        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .crm-sidebar-toggle-floating:hover {
+        background: var(--crm-sidebar-soft, #f1f5f9);
+        color: var(--crm-action, #2563eb);
+        transform: translate(50%, -50%) scale(1.12);
     }
 
     .crm-sidebar-head {
@@ -376,11 +403,18 @@
     }
 
     .crm-nav {
-        display: grid;
-        flex: 1;
-        align-content: start;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: none;
         gap: 0.35rem;
         padding: 0.25rem 0;
+    }
+
+    .crm-nav::-webkit-scrollbar {
+        display: none;
     }
 
     .crm-nav-item,
@@ -420,6 +454,34 @@
         gap: 0.75rem;
         border-top: 1px solid var(--crm-sidebar-line);
         padding-top: 0.75rem;
+        flex-shrink: 0;
+        margin-top: auto;
+    }
+
+    .crm-sidebar-toggle-btn {
+        position: absolute;
+        right: -0.75rem;
+        top: -2px;
+        transform: translate(50%, -50%);
+        z-index: 99;
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 9999px;
+        border: 1px solid var(--crm-sidebar-line);
+        background: var(--crm-surface);
+        color: var(--crm-sidebar-text);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .crm-sidebar-toggle-btn:hover {
+        background: var(--crm-sidebar-soft, #f1f5f9);
+        color: var(--crm-action, #2563eb);
+        transform: translate(50%, -50%) scale(1.12);
     }
 
     .crm-theme-panel {
@@ -2371,7 +2433,10 @@
     @media (min-width: 1024px) {
         :root[data-sidebar='collapsed'] .crm-sidebar {
             width: var(--crm-sidebar-collapsed-width);
-            padding-inline: 0.55rem;
+            padding-inline: 0.5rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
         }
 
         .crm-content {
@@ -2383,43 +2448,36 @@
         }
 
         :root[data-sidebar='collapsed'] .crm-sidebar-head {
-            flex-direction: row;
-            justify-content: center;
-            min-height: 4.5rem;
-            padding: 0.25rem 0 0.65rem;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: center !important;
+            min-height: 4rem !important;
+            padding: 0.25rem 0 0.5rem !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-brand {
-            justify-content: center;
+            width: 100% !important;
+            justify-content: center !important;
+            margin: 0 auto !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-brand-mark {
             height: 2.6rem;
             width: 2.6rem;
             border-radius: 0.8rem;
-        }
-
-        :root[data-sidebar='collapsed'] .crm-sidebar-head > .crm-icon-button {
-            position: absolute;
-            right: -0.2rem;
-            bottom: -0.15rem;
-            min-height: 1.85rem;
-            min-width: 1.85rem;
-            border-radius: 0.6rem;
-            background: var(--crm-sidebar-soft);
-            color: var(--crm-sidebar-muted);
-            box-shadow: var(--crm-shadow-soft);
-        }
-
-        :root[data-sidebar='collapsed'] .crm-sidebar-head > .crm-icon-button svg {
-            height: 1rem;
-            width: 1rem;
+            margin: 0 auto !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-nav {
-            justify-items: center;
-            gap: 0.45rem;
-            padding-top: 0.45rem;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 0.45rem !important;
+            padding-top: 0.45rem !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-brand-copy,
@@ -2428,17 +2486,20 @@
         :root[data-sidebar='collapsed'] .crm-nav-soon,
         :root[data-sidebar='collapsed'] .crm-theme-label,
         :root[data-sidebar='collapsed'] .crm-user-copy {
-            display: none;
+            display: none !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-nav-item,
         :root[data-sidebar='collapsed'] .crm-logout {
-            min-height: 2.75rem;
-            width: 2.75rem;
-            justify-content: center;
-            gap: 0;
-            padding: 0;
-            border-radius: 0.8rem;
+            min-height: 2.75rem !important;
+            width: 2.75rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0 !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+            border-radius: 0.8rem !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-nav-item:hover,
@@ -2447,8 +2508,19 @@
         }
 
         :root[data-sidebar='collapsed'] .crm-sidebar-foot {
-            justify-items: center;
-            padding-top: 0.6rem;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding-top: 0.6rem !important;
+            padding-bottom: 0.25rem !important;
+            margin-top: auto !important;
+            flex-shrink: 0 !important;
+        }
+
+        :root[data-sidebar='collapsed'] .crm-sidebar-toggle-btn {
+            right: -0.5rem !important;
         }
 
         :root[data-sidebar='collapsed'] .crm-theme-panel {
@@ -2456,9 +2528,12 @@
         }
 
         :root[data-sidebar='collapsed'] .crm-user-card {
-            justify-content: center;
-            width: 2.75rem;
-            padding-inline: 0.35rem;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
         }
     }
 
@@ -2521,6 +2596,125 @@
         box-shadow: var(--crm-shadow-soft) !important;
     }
 
+    /* Custom Personal Dashboard Rework Styles */
+    .home-quote-box {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-radius: 0.75rem;
+        border: 1px dashed color-mix(in oklch, var(--crm-line-strong) 70%, transparent);
+        background: color-mix(in oklch, var(--crm-surface) 90%, oklch(85% 0.05 90));
+        padding: 0.65rem 0.9rem;
+        margin-top: 0.75rem;
+    }
+
+    .home-quote-text {
+        font-size: 0.82rem;
+        font-style: italic;
+        color: var(--crm-text);
+        line-height: 1.35;
+    }
+
+    .home-quote-author {
+        font-size: 0.7rem;
+        font-style: normal;
+        font-weight: 700;
+        color: var(--crm-muted);
+    }
+
+    .mini-calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.2rem;
+        text-align: center;
+    }
+
+    .mini-calendar-head {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: var(--crm-subtle);
+        padding: 0.25rem 0;
+        text-transform: uppercase;
+    }
+
+    .mini-calendar-day {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.2rem;
+        border-radius: 0.45rem;
+        font-size: 0.78rem;
+        font-weight: 650;
+        color: var(--crm-text);
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+
+    .mini-calendar-day:hover {
+        background: var(--crm-hover);
+        color: var(--crm-heading);
+    }
+
+    .mini-calendar-day.is-today {
+        background: var(--crm-action);
+        color: var(--crm-on-action);
+        font-weight: 800;
+        box-shadow: var(--crm-shadow-soft);
+    }
+
+    .mini-calendar-dots {
+        display: flex;
+        gap: 2px;
+        position: absolute;
+        bottom: 2px;
+    }
+
+    .cal-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 999px;
+    }
+
+    .cal-dot--journal { background: oklch(68% 0.18 150); }
+    .cal-dot--task { background: oklch(72% 0.18 55); }
+    .cal-dot--project { background: oklch(65% 0.18 240); }
+    .cal-dot--invoice { background: oklch(62% 0.22 25); }
+
+    .home-agenda-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.45rem 0.6rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--crm-line);
+        background: var(--crm-surface);
+        font-size: 0.8rem;
+        transition: background 0.15s;
+    }
+
+    .home-agenda-item:hover {
+        background: var(--crm-hover);
+    }
+
+    .home-project-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 0.85rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--crm-line);
+        background: var(--crm-surface);
+        transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .home-project-card:hover {
+        border-color: var(--crm-line-strong);
+        transform: translateY(-1px);
+    }
+
     @media (prefers-reduced-motion: reduce) {
         *,
         *::before,
@@ -2532,3 +2726,4 @@
         }
     }
 }
+

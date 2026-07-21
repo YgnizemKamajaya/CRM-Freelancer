@@ -79,6 +79,7 @@ Route::middleware('pin')->group(function () {
     Route::resource('journal', JournalController::class);
     Route::get('/vault', [VaultController::class, 'index'])->name('vault.index');
     Route::post('/vault', [VaultController::class, 'store'])->name('vault.store');
+    Route::get('/vault/{file}/preview', [VaultController::class, 'preview'])->name('vault.preview');
     Route::get('/vault/{file}/download', [VaultController::class, 'download'])->name('vault.download');
     Route::delete('/vault/{file}', [VaultController::class, 'destroy'])->name('vault.destroy');
 

@@ -72,6 +72,29 @@ class VaultController extends Controller
         return redirect()->route('vault.index')->with('status', 'File berhasil diupload.');
     }
 
+    public function preview(VaultFile $file): StreamedResponse
+    {
+        $this->authorizeOwner($file);
+
+        abort_unless(Storage::disk($file->disk)->exists($file->path), 404);
+
+        $mime = $file->mime ?: (Storage::disk($file->disk)->mimeType($file->path) ?: 'application/octet-stream');
+
+        return response()->stream(function () use ($file) {
+            $stream = Storage::disk($file->disk)->readStream($file->path);
+            if ($stream) {
+                fpassthru($stream);
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+            }
+        }, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="'.addslashes($file->original_name).'"',
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
+    }
+
     public function download(VaultFile $file): StreamedResponse
     {
         $this->authorizeOwner($file);
