@@ -52,6 +52,27 @@
         @case('calendar')
             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3v3M16.5 3v3M4.5 8.25h15M6 5.25h12A1.5 1.5 0 0 1 19.5 6.75v11.5A1.75 1.75 0 0 1 17.75 20H6.25A1.75 1.75 0 0 1 4.5 18.25V6.75A1.5 1.5 0 0 1 6 5.25Z" />
             @break
+        @case('wallet')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 7.5A1.75 1.75 0 0 1 6.25 5.75h9A1.75 1.75 0 0 1 17 7.5v1.25h1.25A1.75 1.75 0 0 1 20 10.5v6.25a1.75 1.75 0 0 1-1.75 1.75H6.25A1.75 1.75 0 0 1 4.5 16.75V7.5ZM14.75 13.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0Z" />
+            @break
+        @case('board')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 4.75h4.25v14.5H4.5zM9.875 4.75h4.25v9.5h-4.25zM15.25 4.75h4.25v12h-4.25z" />
+            @break
+        @case('book')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.5c-1.4-1.1-3.35-1.5-5.1-1.5-.75 0-1.4.6-1.4 1.4v10.7c0 .8.65 1.4 1.4 1.4 1.75 0 3.7.4 5.1 1.5 1.4-1.1 3.35-1.5 5.1-1.5.75 0 1.4-.6 1.4-1.4V6.4c0-.8-.65-1.4-1.4-1.4-1.75 0-3.7.4-5.1 1.5ZM12 6.5V18.5" />
+            @break
+        @case('clock')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5V12l3 1.75M20.25 12a8.25 8.25 0 1 1-16.5 0 8.25 8.25 0 0 1 16.5 0Z" />
+            @break
+        @case('pencil')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 4.5l3 3L8 19l-4 1 1-4L16.5 4.5Z" />
+            @break
+        @case('trash')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 7h14M10 7V5.5A1.5 1.5 0 0 1 11.5 4h1A1.5 1.5 0 0 1 14 5.5V7M6.5 7l.7 11a1.5 1.5 0 0 0 1.5 1.4h6.6a1.5 1.5 0 0 0 1.5-1.4l.7-11" />
+            @break
+        @case('pin')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 4h6l-1 5 3 3v2H7v-2l3-3-1-5ZM12 14v6" />
+            @break
         @default
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 6.75h15v10.5h-15zM7.5 9.75h9M7.5 12.75h6" />
     @endswitch

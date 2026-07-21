@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Setting;
 use App\Services\InvoiceService;
+use App\Services\FinanceService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -121,10 +122,11 @@ class InvoiceController extends Controller
         return back()->with('status', 'Invoice marked sent.');
     }
 
-    public function markPaid(Invoice $invoice, InvoiceService $invoiceService): RedirectResponse
+    public function markPaid(Invoice $invoice, InvoiceService $invoiceService, FinanceService $financeService): RedirectResponse
     {
         $this->authorizeOwner($invoice);
         $invoiceService->markPaid($invoice);
+        $financeService->recordInvoicePayment($invoice);
 
         return back()->with('status', 'Invoice marked paid.');
     }

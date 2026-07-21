@@ -1,13 +1,50 @@
 @php
-    $navItems = [
-        ['label' => 'Dashboard', 'route' => 'dashboard', 'pattern' => 'dashboard', 'icon' => 'home'],
+    $navGroups = [
+        [
+            'label' => null,
+            'items' => [
+                ['label' => 'Dashboard', 'route' => 'dashboard', 'pattern' => 'dashboard*', 'icon' => 'home'],
+            ],
+        ],
+        [
+            'label' => 'CRM',
+            'items' => [
+                ['label' => 'Clients', 'route' => 'clients.index', 'pattern' => 'clients.*', 'icon' => 'users'],
+                ['label' => 'Deals', 'route' => 'deals.index', 'pattern' => 'deals.*', 'icon' => 'pipeline'],
+                ['label' => 'Projects', 'route' => 'projects.index', 'pattern' => 'projects.*', 'icon' => 'briefcase'],
+                ['label' => 'Tasks', 'route' => 'tasks.index', 'pattern' => 'tasks.*', 'icon' => 'check'],
+                ['label' => 'Invoices', 'route' => 'invoices.index', 'pattern' => 'invoices.*', 'icon' => 'document'],
+            ],
+        ],
+        [
+            'label' => 'Personal',
+            'items' => [
+                ['label' => 'Hari ini', 'route' => 'today.index', 'pattern' => 'today.*', 'icon' => 'check'],
+                ['label' => 'Focus', 'route' => 'focus.index', 'pattern' => 'focus.*', 'icon' => 'clock'],
+                ['label' => 'Finance', 'route' => 'finance.index', 'pattern' => ['finance.*', 'wallets.*', 'transactions.*', 'budgets.*'], 'icon' => 'wallet'],
+                ['label' => 'Goals', 'route' => 'goals.index', 'pattern' => 'goals.*', 'icon' => 'chart'],
+                ['label' => 'Workspace', 'route' => 'workspace.index', 'pattern' => 'workspace.*', 'icon' => 'board'],
+                ['label' => 'Journal', 'route' => 'journal.index', 'pattern' => 'journal.*', 'icon' => 'book'],
+                ['label' => 'Vault', 'route' => 'vault.index', 'pattern' => 'vault.*', 'icon' => 'document'],
+            ],
+        ],
+        [
+            'label' => null,
+            'items' => [
+                ['label' => 'Reports', 'route' => 'reports.index', 'pattern' => 'reports.*', 'icon' => 'chart'],
+                ['label' => 'Settings', 'route' => 'settings.edit', 'pattern' => 'settings.*', 'icon' => 'cog'],
+            ],
+        ],
+    ];
+
+    // Bottom nav (mobile) stays as the original curated 5 so existing muscle memory doesn't shift;
+    // Finance/Workspace/Journal join it once they have real content (Fase 4).
+    $bottomNavItems = [
+        ['label' => 'Dashboard', 'route' => 'dashboard', 'pattern' => 'dashboard*', 'icon' => 'home'],
         ['label' => 'Clients', 'route' => 'clients.index', 'pattern' => 'clients.*', 'icon' => 'users'],
         ['label' => 'Deals', 'route' => 'deals.index', 'pattern' => 'deals.*', 'icon' => 'pipeline'],
         ['label' => 'Projects', 'route' => 'projects.index', 'pattern' => 'projects.*', 'icon' => 'briefcase'],
         ['label' => 'Tasks', 'route' => 'tasks.index', 'pattern' => 'tasks.*', 'icon' => 'check'],
-        ['label' => 'Invoices', 'route' => 'invoices.index', 'pattern' => 'invoices.*', 'icon' => 'document'],
-        ['label' => 'Reports', 'route' => 'reports.index', 'pattern' => 'reports.*', 'icon' => 'chart'],
-        ['label' => 'Settings', 'route' => 'settings.edit', 'pattern' => 'settings.*', 'icon' => 'cog'],
     ];
     $setting = \App\Models\Setting::firstOrCreate([], [
         'owner_name' => config('crm.owner_name'),
@@ -71,6 +108,7 @@
                 sidebarOpen: false,
                 settingsOpen: false,
                 themeMenuOpen: false,
+                commandOpen: false,
                 sidebarCollapsed: document.documentElement.dataset.sidebar === 'collapsed',
                 theme: document.documentElement.dataset.theme || 'light',
                 setTheme(value) {
@@ -79,6 +117,13 @@
                 toggleSidebar() {
                     this.sidebarCollapsed = !this.sidebarCollapsed;
                     applySidebar(this.sidebarCollapsed);
+                },
+                handleGlobalShortcut(event) {
+                    const key = event.key ? event.key.toLowerCase() : '';
+                    if ((event.metaKey || event.ctrlKey) && key === 'k') {
+                        event.preventDefault();
+                        this.commandOpen = true;
+                    }
                 },
             });
         })();
@@ -90,7 +135,7 @@
 
 <body class="crm-body font-sans">
     <a href="#main-content" class="crm-skip-link">Skip to content</a>
-    <div x-data="crmShell()" class="crm-shell min-h-screen">
+    <div x-data="crmShell()" class="crm-shell min-h-screen" @keydown.window="handleGlobalShortcut($event)">
         <aside class="crm-sidebar fixed inset-y-3 left-3 z-40 hidden flex-col lg:flex" aria-label="Workspace sidebar">
             <div class="crm-sidebar-head">
                 <a wire:navigate href="{{ route('dashboard') }}" class="crm-brand" aria-label="Freelance CRM dashboard">
@@ -113,15 +158,23 @@
             </div>
 
             <nav aria-label="Main navigation" class="crm-nav">
-                @foreach ($navItems as $item)
-                @php($active = request()->routeIs($item['pattern']))
+                @foreach ($navGroups as $group)
+                @if ($group['label'])
+                <p class="crm-nav-group-label">{{ $group['label'] }}</p>
+                @endif
+                @foreach ($group['items'] as $item)
+                @php($active = request()->routeIs(...(array) $item['pattern']))
                 <a wire:navigate href="{{ route($item['route']) }}" @class([
                     'crm-nav-item',
                     'is-active' => $active,
                 ]) @if($active) aria-current="page" @endif :title="sidebarCollapsed ? @js($item['label']) : null">
                     <span class="crm-nav-icon"><x-icon :name="$item['icon']" class="h-5 w-5" /></span>
                     <span class="crm-nav-label">{{ $item['label'] }}</span>
+                    @if (!empty($item['soon']))
+                    <span class="crm-nav-soon">Segera</span>
+                    @endif
                 </a>
+                @endforeach
                 @endforeach
             </nav>
 
@@ -216,15 +269,23 @@
                     </button>
                 </div>
                 <nav aria-label="Mobile navigation" class="crm-nav">
-                    @foreach ($navItems as $item)
-                    @php($active = request()->routeIs($item['pattern']))
+                    @foreach ($navGroups as $group)
+                    @if ($group['label'])
+                    <p class="crm-nav-group-label">{{ $group['label'] }}</p>
+                    @endif
+                    @foreach ($group['items'] as $item)
+                    @php($active = request()->routeIs(...(array) $item['pattern']))
                     <a wire:navigate href="{{ route($item['route']) }}" @class([
                         'crm-nav-item',
                         'is-active' => $active,
                     ]) @if($active) aria-current="page" @endif @click="sidebarOpen = false">
                         <span class="crm-nav-icon"><x-icon :name="$item['icon']" class="h-5 w-5" /></span>
                         <span class="crm-nav-label">{{ $item['label'] }}</span>
+                        @if (!empty($item['soon']))
+                        <span class="crm-nav-soon">Segera</span>
+                        @endif
                     </a>
+                    @endforeach
                     @endforeach
                 </nav>
 
@@ -314,6 +375,11 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
+                        <button type="button" class="crm-icon-button" @click="commandOpen = true"
+                            aria-label="Buka pencarian cepat" title="Quick search / add (Ctrl+K)">
+                            <x-icon name="search" class="h-5 w-5" />
+                        </button>
+
                         <div class="hidden items-center gap-2 md:flex">
                             <a wire:navigate href="{{ route('clients.create') }}" class="crm-button-secondary"><x-icon
                                     name="plus" class="h-4 w-4" />Client</a>
@@ -353,8 +419,8 @@
 
         <nav aria-label="Bottom navigation" class="crm-bottom-nav fixed inset-x-0 bottom-0 z-30 lg:hidden">
             <div class="grid grid-cols-5">
-                @foreach (array_slice($navItems, 0, 5) as $item)
-                @php($active = request()->routeIs($item['pattern']))
+                @foreach ($bottomNavItems as $item)
+                @php($active = request()->routeIs(...(array) $item['pattern']))
                 <a wire:navigate href="{{ route($item['route']) }}" @class([
                     'crm-bottom-item',
                     'is-active' => $active,
@@ -365,6 +431,18 @@
                 @endforeach
             </div>
         </nav>
+
+        <!-- Quick Capture / Command Palette -->
+        <div x-cloak x-show="commandOpen"
+            class="fixed inset-0 z-[70] flex justify-center px-4 pt-24 max-lg:pt-16"
+            @keydown.escape.window="commandOpen = false">
+            <div class="crm-mobile-backdrop absolute inset-0" @click="commandOpen = false"></div>
+            <div x-show="commandOpen" x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                @click.outside="commandOpen = false" class="relative h-fit w-full max-w-xl">
+                <livewire:quick-capture />
+            </div>
+        </div>
 
         <!-- Floating Theme Toggle Selector -->
         <div class="fixed bottom-6 right-6 max-lg:bottom-20 max-lg:right-4" style="z-index: 40;">

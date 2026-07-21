@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Lock Screen</title>
+    <style>
+        :root {
+            --bg: #0f1119;
+            --card-bg: #1a1d28;
+            --surface: #222534;
+            --text: #e8eaed;
+            --text-secondary: #9aa0b0;
+            --accent: #6c8cff;
+            --accent-glow: #6c8cff55;
+            --danger: #ff5e7a;
+            --success: #4ade80;
+            --border: #2a2d3a;
+            --dot-empty: #3a3d50;
+            --dot-filled: #e8eaed;
+            --key-bg: #252836;
+            --key-hover: #2f3345;
+            --key-active: #3a3f55;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            background-image:
+                radial-gradient(ellipse at 30% 20%, #1e2545 0%, transparent 55%),
+                radial-gradient(ellipse at 70% 60%, #151b35 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 80%, #0d1228 0%, transparent 50%);
+        }
+
+        /* Subtle animated grid background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.025;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridShift 20s linear infinite;
+        }
+
+        @keyframes gridShift {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0;
+            animation: floatUp 6s ease-in infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0);
+            }
+
+            10% {
+                opacity: 0.5;
+            }
+
+            90% {
+                opacity: 0.1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) scale(1.5);
+            }
+        }
+
+        /* Main lock screen container */
+        .lock-screen {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            animation: fadeInUp 0.7s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Avatar / Profile section */
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .avatar-ring {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, var(--accent), #a78bfa, #f472b6);
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes ringPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 25px var(--accent-glow), 0 0 50px #a78bfa33;
+            }
+
+            50% {
+                box-shadow: 0 0 40px #a78bfa55, 0 0 70px #f472b644;
+            }
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            color: var(--text);
+            border: 3px solid var(--bg);
+        }
+
+        .avatar svg {
+            width: 44px;
+            height: 44px;
+            fill: none;
+            stroke: var(--text);
+            stroke-width: 1.8;
+        }
+
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.3px;
+        }
+
+        .profile-role {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.4px;
+        }
+
+        /* PIN dots */
+        .pin-display {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .pin-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--dot-empty);
+            transition: all var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .pin-dot.filled {
+            background: var(--dot-filled);
+            border-color: var(--accent);
+            box-shadow: 0 0 14px var(--accent-glow);
+            transform: scale(1.15);
+            animation: dotPop 0.3s ease-out;
+        }
+
+        .pin-dot.error {
+            background: var(--danger);
+            border-color: var(--danger);
+            box-shadow: 0 0 18px #ff5e7a66;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes dotPop {
+            0% {
+                transform: scale(0.4);
+            }
+
+            60% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1.15);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-8px);
+            }
+
+            40% {
+                transform: translateX(8px);
+            }
+
+            60% {
+                transform: translateX(-5px);
+            }
+
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        /* Message / status */
+        .status-message {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            min-height: 22px;
+            letter-spacing: 0.3px;
+            transition: color 0.3s;
+            text-align: center;
+        }
+
+        .status-message.error {
+            color: var(--danger);
+            animation: fadeShake 0.5s ease;
+        }
+
+        .status-message.success {
+            color: var(--success);
+        }
+
+        @keyframes fadeShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            75% {
+                transform: translateX(4px);
+            }
+        }
+
+        /* Numpad */
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 72px);
+            grid-template-rows: repeat(4, 56px);
+            gap: 10px;
+        }
+
+        .num-key {
+            background: var(--key-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 1.35rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .num-key:hover {
+            background: var(--key-hover);
+            border-color: #3f4358;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .num-key:active {
+            background: var(--key-active);
+            transform: scale(0.94);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.08s ease;
+        }
+
+        .num-key.ripple::after {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 0.5s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .num-key.key-delete {
+            background: transparent;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            font-weight: 400;
+        }
+
+        .num-key.key-delete:hover {
+            background: var(--key-bg);
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .num-key.key-delete svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .num-key.key-blank {
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        /* Success overlay */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .success-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 36px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #4ade8033;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: bounceIn 0.6s ease 0.2s both;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.25);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .success-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--success);
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .success-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .success-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-continue {
+            margin-top: 8px;
+            padding: 12px 32px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all var(--transition);
+        }
+
+        .btn-continue:hover {
+            background: #7d9aff;
+            box-shadow: 0 8px 25px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-continue:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .numpad {
+                grid-template-columns: repeat(3, 60px);
+                grid-template-rows: repeat(4, 48px);
+                gap: 8px;
+            }
+
+            .num-key {
+                font-size: 1.2rem;
+                border-radius: 10px;
+            }
+
+            .pin-display {
+                gap: 12px;
+            }
+
+            .pin-dot {
+                width: 14px;
+                height: 14px;
+            }
+
+            .avatar-ring {
+                width: 72px;
+                height: 72px;
+            }
+
+            .avatar svg {
+                width: 36px;
+                height: 36px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background elements -->
+    <div class="bg-grid"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lockScreen">
+        <!-- Profile -->
+        <div class="profile-section">
+            <div class="avatar-ring">
+                <div class="avatar">
+                    <!-- User icon -->
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="5" />
+                        <path d="M3 21c0-4.97 4.03-9 9-9s9 4.03 9 9" stroke-linecap="round" />
+                    </svg>
+                </div>
+            </div>
+            <div class="profile-name">Alex Chen</div>
+            <div class="profile-role">Administrator</div>
+        </div>
+
+        <!-- PIN Dots -->
+        <div class="pin-display" id="pinDisplay">
+            <div class="pin-dot" data-index="0"></div>
+            <div class="pin-dot" data-index="1"></div>
+            <div class="pin-dot" data-index="2"></div>
+            <div class="pin-dot" data-index="3"></div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-message" id="statusMessage">Enter PIN to unlock</div>
+
+        <!-- Numpad -->
+        <div class="numpad" id="numpad">
+            <button class="num-key" data-value="1">1</button>
+            <button class="num-key" data-value="2">2</button>
+            <button class="num-key" data-value="3">3</button>
+            <button class="num-key" data-value="4">4</button>
+            <button class="num-key" data-value="5">5</button>
+            <button class="num-key" data-value="6">6</button>
+            <button class="num-key" data-value="7">7</button>
+            <button class="num-key" data-value="8">8</button>
+            <button class="num-key" data-value="9">9</button>
+            <button class="num-key key-blank"></button>
+            <button class="num-key" data-value="0">0</button>
+            <button class="num-key key-delete" data-value="delete" title="Delete">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 4H8l-7 8 7 8h13a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z" />
+                    <line x1="18" y1="9" x2="12" y2="15" />
+                    <line x1="12" y1="9" x2="18" y2="15" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-card">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+            </div>
+            <div class="success-title">Welcome Back!</div>
+            <div class="success-subtitle">Redirecting to your dashboard...</div>
+            <button class="btn-continue" id="btnContinue">Enter Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // ──────────────────────────────────────
+            // Configuration
+            // ──────────────────────────────────────
+            const CORRECT_PIN = '1234';
+            const MAX_PIN_LENGTH = 4;
+            const AUTO_REDIRECT_DELAY = 1800; // ms before auto-redirect after success
+
+            // ──────────────────────────────────────
+            // DOM elements
+            // ──────────────────────────────────────
+            const pinDisplay = document.getElementById('pinDisplay');
+            const pinDots = pinDisplay.querySelectorAll('.pin-dot');
+            const statusMessage = document.getElementById('statusMessage');
+            const numpad = document.getElementById('numpad');
+            const numKeys = numpad.querySelectorAll('.num-key[data-value]');
+            const successOverlay = document.getElementById('successOverlay');
+            const btnContinue = document.getElementById('btnContinue');
+            const lockScreen = document.getElementById('lockScreen');
+
+            // ──────────────────────────────────────
+            // State
+            // ──────────────────────────────────────
+            let pin = '';
+            let isLocked = false; // Prevent input during animations/validation
+            let autoRedirectTimer = null;
+
+            // ──────────────────────────────────────
+            // Create floating particles
+            // ──────────────────────────────────────
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = -(Math.random() * 60 + 10) + 'px';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = Math.random() * 8 + 6 + 's';
+                particlesContainer.appendChild(particle);
+            }
+
+            // ──────────────────────────────────────
+            // Update PIN dots visually
+            // ──────────────────────────────────────
+            function updateDots(animateIndex = true) {
+                pinDots.forEach((dot, i) => {
+                    if (i < pin.length) {
+                        if (i === pin.length - 1 && animateIndex) {
+                            // Remove and re-add class to re-trigger animation
+                            dot.classList.remove('filled');
+                            void dot.offsetWidth; // Force reflow
+                            dot.classList.add('filled');
+                        } else {
+                            dot.classList.add('filled');
+                        }
+                        dot.classList.remove('error');
+                    } else {
+                        dot.classList.remove('filled', 'error');
+                    }
+                });
+            }
+
+            // ──────────────────────────────────────
+            // Show error on dots
+            // ──────────────────────────────────────
+            function showErrorOnDots() {
+                pinDots.forEach(dot => dot.classList.add('error'));
+                statusMessage.textContent = 'Incorrect PIN. Please try again.';
+                statusMessage.classList.add('error');
+                statusMessage.classList.remove('success');
+
+                // Shake the pin display
+                pinDisplay.style.animation = 'none';
+                void pinDisplay.offsetWidth;
+                pinDisplay.style.animation = 'shake 0.5s ease';
+            }
+
+            // ──────────────────────────────────────
+            // Reset UI after error
+            // ──────────────────────────────────────
+            function resetAfterError() {
+                pin = '';
+                updateDots(false);
+                pinDots.forEach(dot => dot.classList.remove('error'));
+                statusMessage.textContent = 'Enter PIN to unlock';
+                statusMessage.classList.remove('error', 'success');
+                pinDisplay.style.animation = '';
+                isLocked = false;
+            }
+
+            // ──────────────────────────────────────
+            // Handle successful login
+            // ──────────────────────────────────────
+            function handleSuccess() {
+                isLocked = true;
+                statusMessage.textContent = 'Access granted!';
+                statusMessage.classList.add('success');
+                statusMessage.classList.remove('error');
+                updateDots(true);
+
+                // Show success overlay after a brief moment
+                setTimeout(() => {
+                    successOverlay.classList.add('show');
+                }, 400);
+
+                // Auto-redirect
+                autoRedirectTimer = setTimeout(() => {
+                    redirectToDashboard();
+                }, AUTO_REDIRECT_DELAY);
+            }
+
+            // ──────────────────────────────────────
+            // Redirect / simulate dashboard entry
+            // ──────────────────────────────────────
+            function redirectToDashboard() {
+                if (autoRedirectTimer) clearTimeout(autoRedirectTimer);
+                // Visual feedback: fade out everything
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '0';
+                setTimeout(() => {
+                    // In a real app, you'd navigate here.
+                    // For this mockup, show an alert and reload.
+                    alert('✅ Welcome to your Dashboard!\n\n(This is a mockup — in production, you would be redirected to your actual dashboard page.)');
+                    document.body.style.opacity = '1';
+                    resetLockScreen();
+                }, 500);
+            }
+
+            // ──────────────────────────────────────
+            // Full reset of the lock screen
+            // ──────────────────────────────────────
+            function resetLockScreen() {
+                pin = '';
+                isLocked = false;
+                updateDots(false);
+                pinDots.forEach(dot => dot.classList.remove('error'));
+                statusMessage.textContent = 'Enter PIN to unlock';
+                statusMessage.classList.remove('error', 'success');
+                pinDisplay.style.animation = '';
+                successOverlay.classList.remove('show');
+                if (autoRedirectTimer) clearTimeout(autoRedirectTimer);
+                autoRedirectTimer = null;
+                document.body.style.opacity = '1';
+                document.body.style.transition = '';
+            }
+
+            // ──────────────────────────────────────
+            // Validate PIN
+            // ──────────────────────────────────────
+            function validatePin() {
+                if (pin.length < MAX_PIN_LENGTH) return;
+
+                isLocked = true;
+
+                if (pin === CORRECT_PIN) {
+                    handleSuccess();
+                } else {
+                    showErrorOnDots();
+                    // Allow retry after animation
+                    setTimeout(() => {
+                        resetAfterError();
+                    }, 1000);
+                }
+            }
+
+            // ──────────────────────────────────────
+            // Add a digit to the PIN
+            // ──────────────────────────────────────
+            function addDigit(digit) {
+                if (isLocked) return;
+                if (pin.length >= MAX_PIN_LENGTH) return;
+
+                pin += digit;
+                updateDots(true);
+                statusMessage.textContent = 'Enter PIN to unlock';
+                statusMessage.classList.remove('error', 'success');
+
+                // Auto-validate when 4 digits are entered
+                if (pin.length === MAX_PIN_LENGTH) {
+                    // Small delay so the last dot animation plays
+                    setTimeout(() => validatePin(), 150);
+                }
+            }
+
+            // ──────────────────────────────────────
+            // Delete last digit
+            // ──────────────────────────────────────
+            function deleteDigit() {
+                if (isLocked) return;
+                if (pin.length === 0) return;
+
+                pin = pin.slice(0, -1);
+                updateDots(false);
+                statusMessage.textContent = 'Enter PIN to unlock';
+                statusMessage.classList.remove('error', 'success');
+            }
+
+            // ──────────────────────────────────────
+            // Ripple effect on key press
+            // ──────────────────────────────────────
+            function addRipple(element) {
+                element.classList.add('ripple');
+                element.addEventListener('animationend', function handler() {
+                    element.classList.remove('ripple');
+                    element.removeEventListener('animationend', handler);
+                });
+            }
+
+            // ──────────────────────────────────────
+            // Numpad click handlers
+            // ──────────────────────────────────────
+            numKeys.forEach(key => {
+                key.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const value = key.getAttribute('data-value');
+                    addRipple(key);
+
+                    if (value === 'delete') {
+                        deleteDigit();
+                    } else if (value !== null && value !== '') {
+                        addDigit(value);
+                    }
+                });
+
+                // Prevent focus ring on click for mouse users
+                key.addEventListener('mousedown', (e) => e.preventDefault());
+            });
+
+            // ──────────────────────────────────────
+            // Keyboard support
+            // ──────────────────────────────────────
+            document.addEventListener('keydown', (e) => {
+                // If success overlay is showing, allow Enter to continue
+                if (successOverlay.classList.contains('show')) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        redirectToDashboard();
+                    }
+                    return;
+                }
+
+                if (isLocked) return;
+
+                const key = e.key;
+
+                if (key >= '0' && key <= '9') {
+                    e.preventDefault();
+                    addDigit(key);
+                    // Highlight corresponding numpad key
+                    highlightNumpadKey(key);
+                } else if (key === 'Backspace' || key === 'Delete') {
+                    e.preventDefault();
+                    deleteDigit();
+                    highlightNumpadKey('delete');
+                } else if (key === 'Enter') {
+                    e.preventDefault();
+                    if (pin.length === MAX_PIN_LENGTH) {
+                        validatePin();
+                    }
+                } else if (key === 'Escape') {
+                    e.preventDefault();
+                    // Clear PIN on Escape
+                    pin = '';
+                    updateDots(false);
+                    statusMessage.textContent = 'Enter PIN to unlock';
+                    statusMessage.classList.remove('error', 'success');
+                }
+            });
+
+            // ──────────────────────────────────────
+            // Highlight numpad key on keyboard press
+            // ──────────────────────────────────────
+            function highlightNumpadKey(value) {
+                const targetKey = numpad.querySelector(`.num-key[data-value="${value}"]`);
+                if (targetKey) {
+                    targetKey.style.background = 'var(--key-active)';
+                    targetKey.style.transform = 'scale(0.94)';
+                    setTimeout(() => {
+                        targetKey.style.background = '';
+                        targetKey.style.transform = '';
+                    }, 120);
+                }
+            }
+
+            // ──────────────────────────────────────
+            // Continue button
+            // ──────────────────────────────────────
+            btnContinue.addEventListener('click', () => {
+                redirectToDashboard();
+            });
+
+            // ──────────────────────────────────────
+            // Click outside success card to dismiss
+            // ──────────────────────────────────────
+            successOverlay.addEventListener('click', (e) => {
+                if (e.target === successOverlay) {
+                    redirectToDashboard();
+                }
+            });
+
+            // ──────────────────────────────────────
+            // Initialize
+            // ──────────────────────────────────────
+            console.log('🔒 Dashboard Lock Screen ready');
+            console.log('   Default PIN: 1234');
+            console.log('   Use keyboard or on-screen numpad');
+            console.log('   Press Escape to clear input');
+        })();
+    </script>
+</body>
+
+</html>

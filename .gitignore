@@ -1,24 +1,54 @@
-*.log
-.DS_Store
+# Dependencies
+/node_modules
+/vendor
+
+# Environment
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
+.env.*.local
+
+# Build output
 /public/build
 /public/hot
 /public/storage
+
+# Storage keys & tooling caches
+# (per-directory .gitignore files under storage/ already keep user uploads —
+#  vault, goal-banners, public — out of version control.)
 /storage/*.key
 /storage/pail
-/vendor
+/auth.json
+.phpactor.json
+.phpunit.result.cache
+/.phpunit.cache
+
+# SQLite local database (remove these lines if you commit a seeded db on purpose)
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / IDE
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Homestead
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# Deliverable archives
+/*.zip

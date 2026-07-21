@@ -5,6 +5,15 @@
     <x-slot:title>Dashboard</x-slot:title>
 
     <div class="space-y-6">
+        <div class="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+            <div>
+                <p class="crm-eyebrow">CRM</p>
+                <h1 class="text-2xl font-semibold" style="color: var(--crm-heading);">Ringkasan CRM</h1>
+                <p class="mt-1 text-sm" style="color: var(--crm-muted);">Metrik lengkap penjualan, proyek, dan invoice.</p>
+            </div>
+            <a href="{{ route('dashboard') }}" class="crm-button-secondary">← Beranda</a>
+        </div>
+
         <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <x-stat-card label="Total clients" :value="$metrics['total_clients']" icon="users" />
             <x-stat-card label="Active deals" :value="$metrics['active_deals']" icon="pipeline" tone="amber" />
