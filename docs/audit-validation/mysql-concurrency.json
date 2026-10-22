@@ -1,0 +1,8 @@
+{
+    "database": "8.4.9",
+    "workers_per_case": 8,
+    "payment_rows": 1,
+    "payment_amount": "100.00",
+    "project_rows": 1,
+    "card_link_matches": true
+}

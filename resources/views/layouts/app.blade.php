@@ -9,6 +9,7 @@
         [
             'label' => 'CRM',
             'items' => [
+                ['label' => 'Ringkasan CRM', 'route' => 'dashboard.crm', 'pattern' => 'dashboard.crm', 'icon' => 'chart'],
                 ['label' => 'Clients', 'route' => 'clients.index', 'pattern' => 'clients.*', 'icon' => 'users'],
                 ['label' => 'Deals', 'route' => 'deals.index', 'pattern' => 'deals.*', 'icon' => 'pipeline'],
                 ['label' => 'Projects', 'route' => 'projects.index', 'pattern' => 'projects.*', 'icon' => 'briefcase'],
@@ -37,8 +38,7 @@
         ],
     ];
 
-    // Bottom nav (mobile) stays as the original curated 5 so existing muscle memory doesn't shift;
-    // Finance/Workspace/Journal join it once they have real content (Fase 4).
+    // Frequent destinations; all modules are available in the mobile drawer.
     $bottomNavItems = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'pattern' => 'dashboard*', 'icon' => 'home'],
         ['label' => 'Clients', 'route' => 'clients.index', 'pattern' => 'clients.*', 'icon' => 'users'],
@@ -46,10 +46,6 @@
         ['label' => 'Projects', 'route' => 'projects.index', 'pattern' => 'projects.*', 'icon' => 'briefcase'],
         ['label' => 'Tasks', 'route' => 'tasks.index', 'pattern' => 'tasks.*', 'icon' => 'check'],
     ];
-    $setting = \App\Models\Setting::firstOrCreate([], [
-        'owner_name' => config('crm.owner_name'),
-        'owner_email' => config('crm.owner_email'),
-    ]);
     $workspaceLogo = $setting->logo_path;
     $ownerAvatar = $setting->avatar_path;
     $ownerName = $setting->owner_name ?: config('crm.owner_name');
@@ -429,7 +425,7 @@
 
             @if (session('status'))
                 <div class="mx-auto max-w-7xl px-4 pt-4 md:px-6 lg:px-8">
-                    <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700"
+                    <div class="crm-status-alert rounded-lg px-4 py-3 text-sm font-medium"
                         role="status">
                         {{ session('status') }}
                     </div>

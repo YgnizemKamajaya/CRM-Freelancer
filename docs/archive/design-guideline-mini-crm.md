@@ -1,3 +1,5 @@
+> Historical design proposal, archived 22 October 2026. The original Flowbite examples and color assumptions below are outdated; the stated accessibility level is a target, not a verified result. Use [the contributor guide](../../CLAUDE.md) for current theme/component rules and [the backlog](../../AUDIT-TODO.md) for remaining accessibility checks. Original wording is preserved as history.
+
 # Design Guideline — Mini CRM for Freelancer
 
 **Versi:** 1.0

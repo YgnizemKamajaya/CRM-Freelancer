@@ -12,7 +12,7 @@
     <div x-data="{}">
         @if ($editing)
             {{-- Delete confirm modal: MUST live OUTSIDE the edit <form> --}}
-            <x-confirm-action
+            <x-confirm-action :hide-trigger="true"
                 :action="route('goals.destroy', $goal)"
                 label="Hapus"
                 title="Hapus goal?"
@@ -91,6 +91,7 @@
                     </div>
 
                     <label class="flex items-center gap-2 text-sm" style="color: var(--crm-text);">
+                        <input type="hidden" name="is_pinned" value="0">
                         <input type="checkbox" name="is_pinned" value="1" @checked(old('is_pinned', $goal->is_pinned)) class="h-4 w-4">
                         Pin sebagai mimpi utama (tampil besar di atas)
                     </label>
@@ -99,6 +100,7 @@
                 {{-- Financial-only options --}}
                 <div x-show="type === 'financial'" x-cloak class="space-y-3 rounded-lg p-3" style="background: var(--crm-surface-soft);">
                     <label class="flex items-center gap-2 text-sm" style="color: var(--crm-text);">
+                        <input type="hidden" name="auto_track" value="0">
                         <input type="checkbox" name="auto_track" value="1" x-model="auto" @checked(old('auto_track', $goal->auto_track)) class="h-4 w-4">
                         Lacak otomatis dari saldo wallet
                     </label>

@@ -232,10 +232,10 @@
                                 <span>{{ $d }}</span>
                                 @if ($hasJ || $hasT || $hasP || $hasI)
                                     <div style="display:flex;gap:2px;position:absolute;bottom:2px;">
-                                        @if($hasJ)<span style="width:4px;height:4px;border-radius:999px;background:oklch(68% 0.18 150);display:block;"></span>@endif
-                                        @if($hasT)<span style="width:4px;height:4px;border-radius:999px;background:oklch(72% 0.18 55);display:block;"></span>@endif
-                                        @if($hasP)<span style="width:4px;height:4px;border-radius:999px;background:oklch(65% 0.18 240);display:block;"></span>@endif
-                                        @if($hasI)<span style="width:4px;height:4px;border-radius:999px;background:oklch(62% 0.22 25);display:block;"></span>@endif
+                                        @if($hasJ)<span class="cal-dot cal-dot--journal"></span>@endif
+                                        @if($hasT)<span class="cal-dot cal-dot--task"></span>@endif
+                                        @if($hasP)<span class="cal-dot cal-dot--project"></span>@endif
+                                        @if($hasI)<span class="cal-dot cal-dot--invoice"></span>@endif
                                     </div>
                                 @endif
                             </a>
@@ -247,9 +247,9 @@
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
                             <span style="font-size:0.75rem;font-weight:700;color:var(--crm-muted);">Agenda Bulan Ini</span>
                             <div style="display:flex;gap:0.5rem;font-size:0.65rem;color:var(--crm-subtle);">
-                                <span style="display:flex;align-items:center;gap:3px;"><span style="width:6px;height:6px;border-radius:999px;background:oklch(68% 0.18 150);display:inline-block;"></span>Jurnal</span>
-                                <span style="display:flex;align-items:center;gap:3px;"><span style="width:6px;height:6px;border-radius:999px;background:oklch(72% 0.18 55);display:inline-block;"></span>Task</span>
-                                <span style="display:flex;align-items:center;gap:3px;"><span style="width:6px;height:6px;border-radius:999px;background:oklch(65% 0.18 240);display:inline-block;"></span>Project</span>
+                                <span style="display:flex;align-items:center;gap:3px;"><span class="cal-dot cal-dot--journal"></span>Jurnal</span>
+                                <span style="display:flex;align-items:center;gap:3px;"><span class="cal-dot cal-dot--task"></span>Task</span>
+                                <span style="display:flex;align-items:center;gap:3px;"><span class="cal-dot cal-dot--project"></span>Project</span>
                             </div>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:0.5rem;">

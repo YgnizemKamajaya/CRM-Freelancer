@@ -4,7 +4,7 @@
 
     <div x-data="{}">
         @if ($editing)
-            <x-confirm-action :action="route('wallets.destroy', $wallet)" label="Hapus" title="Hapus wallet?" body="Jika wallet punya transaksi, wallet akan diarsipkan, bukan dihapus." />
+            <x-confirm-action :hide-trigger="true" :action="route('wallets.destroy', $wallet)" label="Hapus" title="Hapus wallet?" body="Jika wallet punya transaksi, wallet akan diarsipkan, bukan dihapus." />
         @endif
 
         <form method="POST" action="{{ $editing ? route('wallets.update', $wallet) : route('wallets.store') }}" class="mx-auto max-w-2xl space-y-6">

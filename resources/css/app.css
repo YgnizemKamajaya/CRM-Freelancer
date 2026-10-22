@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
-@plugin 'flowbite/plugin';
 
-@source '../../node_modules/flowbite/**/*.js';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -247,9 +245,6 @@
     .crm-field:focus,
     .crm-icon-button:focus-visible,
     .crm-nav-item:focus-visible,
-    .crm-theme-choice:focus-visible,
-    .crm-logout:focus-visible,
-    .crm-settings-trigger:focus-visible,
     .crm-settings-links a:focus-visible,
     .crm-settings-links button:focus-visible,
     .crm-bottom-item:focus-visible {
@@ -295,32 +290,6 @@
     .crm-sidebar {
         width: var(--crm-sidebar-width);
         position: relative;
-    }
-
-    .crm-sidebar-toggle-floating {
-        position: absolute;
-        top: 25%;
-        right: 0;
-        transform: translate(50%, -50%);
-        z-index: 50;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.85rem;
-        height: 1.85rem;
-        border-radius: 9999px;
-        border: 1px solid var(--crm-sidebar-line);
-        background: var(--crm-surface);
-        color: var(--crm-sidebar-text);
-        box-shadow: var(--crm-shadow-soft, 0 2px 6px rgba(0, 0, 0, 0.12));
-        cursor: pointer;
-        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-    }
-
-    .crm-sidebar-toggle-floating:hover {
-        background: var(--crm-sidebar-soft, #f1f5f9);
-        color: var(--crm-action, #2563eb);
-        transform: translate(50%, -50%) scale(1.12);
     }
 
     .crm-sidebar-head {
@@ -417,8 +386,7 @@
         display: none;
     }
 
-    .crm-nav-item,
-    .crm-logout {
+    .crm-nav-item {
         display: flex;
         min-height: 2.75rem;
         align-items: center;
@@ -442,8 +410,7 @@
         color: var(--crm-sidebar-active-text);
     }
 
-    .crm-nav-item:hover,
-    .crm-logout:hover {
+    .crm-nav-item:hover {
         background: var(--crm-sidebar-hover);
         color: var(--crm-sidebar-text);
         transform: translateX(2px);
@@ -482,79 +449,6 @@
         background: var(--crm-sidebar-soft, #f1f5f9);
         color: var(--crm-action, #2563eb);
         transform: translate(50%, -50%) scale(1.12);
-    }
-
-    .crm-theme-panel {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.35rem;
-        border: 1px solid var(--crm-sidebar-line);
-        border-radius: 0.75rem;
-        background: var(--crm-sidebar-soft);
-        padding: 0.35rem;
-    }
-
-    .crm-theme-choice {
-        display: inline-flex;
-        min-height: 2.35rem;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        border-radius: 0.5rem;
-        color: var(--crm-sidebar-muted);
-        font-size: 0.75rem;
-        font-weight: 700;
-        transition: background-color 160ms var(--crm-ease), color 160ms var(--crm-ease), transform 160ms var(--crm-ease);
-    }
-
-    .crm-theme-choice.is-active {
-        background: var(--crm-sidebar-active);
-        color: var(--crm-sidebar-active-text);
-    }
-
-    .crm-theme-choice:hover {
-        background: var(--crm-sidebar-hover);
-        color: var(--crm-sidebar-text);
-    }
-
-    .crm-theme-swatch {
-        display: inline-flex;
-        height: 0.9rem;
-        width: 0.9rem;
-        flex: 0 0 auto;
-        border: 1px solid var(--crm-sidebar-line);
-        border-radius: 999px;
-    }
-
-    .crm-theme-swatch.is-light {
-        background: linear-gradient(135deg, #f8fafc 0 50%, #111827 50% 100%);
-    }
-
-    .crm-theme-swatch.is-sepia {
-        background: linear-gradient(135deg, #ead8bd 0 50%, #8b5d3c 50% 100%);
-    }
-
-    .crm-theme-swatch.is-dark {
-        background: linear-gradient(135deg, #111827 0 50%, #e5e7eb 50% 100%);
-    }
-
-    .crm-settings-trigger {
-        display: inline-flex;
-        min-height: 2.75rem;
-        align-items: center;
-        gap: 0.65rem;
-        border: 1px solid var(--crm-line);
-        border-radius: 0.75rem;
-        background: var(--crm-surface);
-        color: var(--crm-text);
-        padding: 0.35rem 0.5rem;
-        transition: background-color 160ms var(--crm-ease), color 160ms var(--crm-ease), transform 160ms var(--crm-ease);
-    }
-
-    .crm-settings-trigger:hover {
-        background: var(--crm-hover);
-        color: var(--crm-heading);
-        transform: translateY(-1px);
     }
 
     .crm-avatar-img,
@@ -607,13 +501,11 @@
         padding: 0.75rem;
     }
 
-    .crm-settings-user .crm-user-name,
-    .crm-settings-trigger .crm-user-name {
+    .crm-settings-user .crm-user-name {
         color: var(--crm-heading);
     }
 
-    .crm-settings-user .crm-user-email,
-    .crm-settings-trigger .crm-user-email {
+    .crm-settings-user .crm-user-email {
         color: var(--crm-muted);
     }
 
@@ -653,26 +545,6 @@
         border-radius: 0.75rem;
         background: var(--crm-sidebar-soft);
         padding: 0.65rem;
-    }
-
-    .crm-user-avatar {
-        display: inline-flex;
-        height: 2.25rem;
-        width: 2.25rem;
-        flex: 0 0 auto;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.625rem;
-        background: var(--crm-sidebar-active);
-        color: var(--crm-sidebar-active-text);
-        font-weight: 800;
-    }
-
-    .crm-logout {
-        width: 100%;
-        border: 0;
-        background: transparent;
-        text-align: left;
     }
 
     .crm-mobile-backdrop {
@@ -1325,87 +1197,6 @@
     }
 
     /* ============ Dashboard 2.0 (home) ============ */
-    .home-shell {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .home-hero {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 1.25rem;
-        padding-bottom: 1.25rem;
-        border-bottom: 1px solid var(--crm-line);
-    }
-
-    .home-hero-date {
-        font-size: 0.8rem;
-        font-weight: 650;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--crm-subtle);
-    }
-
-    .home-hero-greeting {
-        margin-top: 0.25rem;
-        font-size: clamp(1.9rem, 4vw, 2.75rem);
-        font-weight: 750;
-        letter-spacing: -0.03em;
-        line-height: 1.05;
-        color: var(--crm-heading);
-    }
-
-    .home-hero-glance {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
-
-    .home-hero-glance > div {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .home-glance-num {
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1;
-        color: var(--crm-heading);
-    }
-
-    .home-glance-label {
-        margin-top: 0.2rem;
-        font-size: 0.72rem;
-        color: var(--crm-subtle);
-    }
-
-    .home-glance-sep {
-        width: 1px;
-        height: 2.25rem;
-        background: var(--crm-line);
-    }
-
-    .home-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-    }
-
-    @media (min-width: 900px) {
-        .home-grid {
-            grid-template-columns: 1.05fr 0.95fr;
-            align-items: start;
-        }
-    }
-
-    .home-col {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
 
     .home-card {
         padding: 1.25rem;
@@ -1544,9 +1335,6 @@
     }
 
     /* Signature — attention card */
-    .home-attention {
-        border: 1px solid var(--crm-line-strong);
-    }
 
     .home-alerts {
         display: flex;
@@ -1612,57 +1400,6 @@
     }
 
     /* Cashflow mini */
-    .home-balance {
-        font-size: 1.75rem;
-        font-weight: 750;
-        letter-spacing: -0.02em;
-        color: var(--crm-heading);
-    }
-
-    .home-balance-label {
-        font-size: 0.72rem;
-        color: var(--crm-subtle);
-    }
-
-    .home-cashflow {
-        display: grid;
-        grid-auto-flow: column;
-        grid-auto-columns: 1fr;
-        align-items: end;
-        gap: 0.6rem;
-        height: 6rem;
-        margin-top: 1rem;
-    }
-
-    .home-cashflow-col {
-        display: grid;
-        grid-template-rows: 1fr auto;
-        justify-items: center;
-        gap: 0.4rem;
-        height: 100%;
-    }
-
-    .home-cashflow-bars {
-        display: flex;
-        align-items: end;
-        gap: 0.25rem;
-        height: 100%;
-    }
-
-    .home-cashflow-label {
-        font-size: 0.65rem;
-        font-weight: 650;
-        color: var(--crm-subtle);
-    }
-
-    .home-cashflow-legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.85rem;
-        margin-top: 0.85rem;
-        font-size: 0.75rem;
-        color: var(--crm-muted);
-    }
 
     /* Mood mini */
     .home-mood {
@@ -1682,16 +1419,6 @@
     .home-mood-dot[data-mood='3'] { background: var(--crm-mood-3); }
     .home-mood-dot[data-mood='4'] { background: var(--crm-mood-4); }
     .home-mood-dot[data-mood='5'] { background: var(--crm-mood-5); }
-
-    .home-mood-meta {
-        margin-top: 0.85rem;
-        font-size: 0.82rem;
-        color: var(--crm-muted);
-    }
-
-    .home-mood-meta strong {
-        color: var(--crm-heading);
-    }
 
     .mood-trend {
         display: grid;
@@ -1931,17 +1658,6 @@
     .command-hero-bg span:nth-child(4) { left: 66%; top: 2.95rem; }
     .command-hero-bg span:nth-child(5) { left: 82%; top: 2.45rem; }
 
-    .command-hero-main {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        align-items: end;
-        gap: 1rem;
-        max-width: 42rem;
-        padding-top: 4rem;
-    }
-
     .command-date,
     .command-panel-kicker {
         color: var(--crm-subtle);
@@ -1958,13 +1674,6 @@
         font-weight: 800;
         letter-spacing: 0;
         line-height: 1;
-    }
-
-    .command-copy {
-        margin-top: 0.6rem;
-        max-width: 32rem;
-        color: var(--crm-muted);
-        font-size: 0.95rem;
     }
 
     .command-search {
@@ -2026,12 +1735,6 @@
         font-weight: 750;
     }
 
-    .command-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
     .command-panel {
         overflow: hidden;
         border: 1px solid var(--crm-line);
@@ -2049,8 +1752,7 @@
         margin-bottom: 0.85rem;
     }
 
-    .command-panel h2,
-    .command-empty-card h2 {
+    .command-panel h2 {
         margin-top: 0.15rem;
         color: var(--crm-heading);
         font-size: 1rem;
@@ -2058,51 +1760,15 @@
         letter-spacing: 0;
     }
 
-    .command-panel-head a,
-    .command-empty-card a {
+    .command-panel-head a {
         color: var(--crm-muted);
         font-size: 0.75rem;
         font-weight: 800;
     }
 
-    .command-now {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        background: color-mix(in oklch, var(--crm-surface) 86%, oklch(88% 0.08 82));
-    }
-
-    .command-clock {
-        margin-top: 0.15rem;
-        color: var(--crm-heading);
-        font-size: 2.25rem;
-        font-weight: 850;
-        font-variant-numeric: tabular-nums;
-        line-height: 1;
-    }
-
     .command-muted {
         color: var(--crm-subtle);
         font-size: 0.82rem;
-    }
-
-    .command-ring {
-        display: grid;
-        height: 4.6rem;
-        width: 4.6rem;
-        flex: 0 0 auto;
-        place-items: center;
-        border-radius: 999px;
-        background:
-            radial-gradient(closest-side, var(--crm-surface) 72%, transparent 73%),
-            conic-gradient(var(--crm-income) calc(var(--value) * 1%), var(--crm-surface-soft) 0);
-    }
-
-    .command-ring span {
-        color: var(--crm-heading);
-        font-size: 0.82rem;
-        font-weight: 850;
     }
 
     .command-split {
@@ -2117,20 +1783,6 @@
         display: block;
         color: var(--crm-heading);
         font-size: 0.9rem;
-    }
-
-    .command-goal {
-        padding: 0;
-    }
-
-    .command-goal .goal-banner {
-        height: 100%;
-        min-height: 14rem;
-        border-radius: 0.875rem;
-    }
-
-    .command-empty-card {
-        padding: 1rem;
     }
 
     .command-list {
@@ -2207,11 +1859,6 @@
         height: 5.25rem;
         width: 5.25rem;
         flex: 0 0 auto;
-    }
-
-    .personal-mascot.is-command {
-        height: 6.75rem;
-        width: 6.75rem;
     }
 
     .mascot-head,
@@ -2366,38 +2013,11 @@
     }
 
     @media (min-width: 900px) {
-        .command-grid {
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            align-items: stretch;
-        }
-
-        .command-now { grid-column: span 2; }
         .command-focus { grid-column: span 2; }
-        .command-finance { grid-column: span 2; }
-        .command-attention { grid-column: span 2; }
-        .command-goal { grid-column: span 2; }
-        .command-journal { grid-column: span 2; }
-        .command-pipeline { grid-column: span 3; }
-        .command-panel:not(.command-now):not(.command-focus):not(.command-finance):not(.command-attention):not(.command-goal):not(.command-journal):not(.command-pipeline) {
-            grid-column: span 2;
-        }
     }
 
     @media (min-width: 1280px) {
-        .command-grid {
-            grid-template-columns: repeat(12, minmax(0, 1fr));
-        }
-
-        .command-now { grid-column: span 3; }
         .command-focus { grid-column: span 3; }
-        .command-finance { grid-column: span 3; }
-        .command-attention { grid-column: span 3; }
-        .command-goal { grid-column: span 4; }
-        .command-journal { grid-column: span 4; }
-        .command-pipeline { grid-column: span 4; }
-        .command-panel:not(.command-now):not(.command-focus):not(.command-finance):not(.command-attention):not(.command-goal):not(.command-journal):not(.command-pipeline) {
-            grid-column: span 3;
-        }
 
         .personal-stat-grid {
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2408,11 +2028,6 @@
         .command-hero {
             min-height: 23rem;
             padding: 1rem;
-        }
-
-        .command-hero-main {
-            grid-template-columns: 1fr;
-            padding-top: 3.5rem;
         }
 
         .command-hero h1 {
@@ -2484,13 +2099,11 @@
         :root[data-sidebar='collapsed'] .crm-nav-label,
         :root[data-sidebar='collapsed'] .crm-nav-group-label,
         :root[data-sidebar='collapsed'] .crm-nav-soon,
-        :root[data-sidebar='collapsed'] .crm-theme-label,
         :root[data-sidebar='collapsed'] .crm-user-copy {
             display: none !important;
         }
 
-        :root[data-sidebar='collapsed'] .crm-nav-item,
-        :root[data-sidebar='collapsed'] .crm-logout {
+        :root[data-sidebar='collapsed'] .crm-nav-item {
             min-height: 2.75rem !important;
             width: 2.75rem !important;
             display: flex !important;
@@ -2502,8 +2115,7 @@
             border-radius: 0.8rem !important;
         }
 
-        :root[data-sidebar='collapsed'] .crm-nav-item:hover,
-        :root[data-sidebar='collapsed'] .crm-logout:hover {
+        :root[data-sidebar='collapsed'] .crm-nav-item:hover {
             transform: translateY(-1px);
         }
 
@@ -2521,10 +2133,6 @@
 
         :root[data-sidebar='collapsed'] .crm-sidebar-toggle-btn {
             right: -0.5rem !important;
-        }
-
-        :root[data-sidebar='collapsed'] .crm-theme-panel {
-            grid-template-columns: 1fr;
         }
 
         :root[data-sidebar='collapsed'] .crm-user-card {
@@ -2622,65 +2230,16 @@
         color: var(--crm-muted);
     }
 
-    .mini-calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 0.2rem;
-        text-align: center;
-    }
-
-    .mini-calendar-head {
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: var(--crm-subtle);
-        padding: 0.25rem 0;
-        text-transform: uppercase;
-    }
-
-    .mini-calendar-day {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 2.2rem;
-        border-radius: 0.45rem;
-        font-size: 0.78rem;
-        font-weight: 650;
-        color: var(--crm-text);
-        text-decoration: none;
-        transition: all 0.15s ease;
-    }
-
-    .mini-calendar-day:hover {
-        background: var(--crm-hover);
-        color: var(--crm-heading);
-    }
-
-    .mini-calendar-day.is-today {
-        background: var(--crm-action);
-        color: var(--crm-on-action);
-        font-weight: 800;
-        box-shadow: var(--crm-shadow-soft);
-    }
-
-    .mini-calendar-dots {
-        display: flex;
-        gap: 2px;
-        position: absolute;
-        bottom: 2px;
-    }
-
     .cal-dot {
         width: 4px;
         height: 4px;
         border-radius: 999px;
     }
 
-    .cal-dot--journal { background: oklch(68% 0.18 150); }
-    .cal-dot--task { background: oklch(72% 0.18 55); }
-    .cal-dot--project { background: oklch(65% 0.18 240); }
-    .cal-dot--invoice { background: oklch(62% 0.22 25); }
+    .cal-dot--journal { background: var(--crm-income); }
+    .cal-dot--task { background: var(--crm-over); }
+    .cal-dot--project { background: var(--crm-action); }
+    .cal-dot--invoice { background: var(--crm-expense); }
 
     .home-agenda-item {
         display: flex;
@@ -2727,3 +2286,7 @@
     }
 }
 
+
+@layer utilities {
+    .crm-status-alert { background: var(--crm-income-soft); color: var(--crm-income); border: 1px solid var(--crm-income); }
+}

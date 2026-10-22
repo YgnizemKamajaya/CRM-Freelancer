@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Models\Board;
 use App\Models\Client;
 use App\Models\Deal;
+use App\Models\Goal;
 use App\Models\Invoice;
 use App\Models\JournalEntry;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\VaultFile;
 use Livewire\Component;
 
 class QuickCapture extends Component
@@ -37,7 +40,6 @@ class QuickCapture extends Component
         if ($term === '') {
             $groups = [
                 ['label' => 'Buat baru', 'items' => $this->createShortcuts()],
-                ['label' => 'Segera hadir', 'items' => $this->comingSoonShortcuts()],
                 ['label' => 'Navigasi', 'items' => $this->navigationShortcuts()],
             ];
         } else {
@@ -48,6 +50,9 @@ class QuickCapture extends Component
                 ['label' => 'Invoices', 'items' => $this->searchInvoices($term)],
                 ['label' => 'Tasks', 'items' => $this->searchTasks($term)],
                 ['label' => 'Journal', 'items' => $this->searchJournal($term)],
+                ['label' => 'Boards', 'items' => $this->searchWorkspace($term, Board::class, 'name', 'workspace.show', 'board')],
+                ['label' => 'Goals', 'items' => $this->searchWorkspace($term, Goal::class, 'title', 'goals.edit', 'chart')],
+                ['label' => 'Vault', 'items' => $this->searchWorkspace($term, VaultFile::class, 'original_name', 'vault.download', 'document')],
                 ['label' => 'Navigasi', 'items' => $this->matchingShortcuts($term)],
             ];
         }
@@ -77,18 +82,6 @@ class QuickCapture extends Component
 
     /**
      * @return array<int, array<string, mixed>>
-     *
-     * TODO(audit D6): "Board workspace" only routes to the board list; there is no
-     *   one-shot "create card" quick-add yet. Consider a dedicated route/modal.
-     *   See AUDIT-TODO.md.
-     */
-    protected function comingSoonShortcuts(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
      */
     protected function navigationShortcuts(): array
     {
@@ -112,6 +105,7 @@ class QuickCapture extends Component
     protected function shortcutMap(): array
     {
         return [
+            ['label' => 'Ringkasan CRM', 'href' => route('dashboard.crm'), 'icon' => 'chart'],
             ['label' => 'Dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
             ['label' => 'Hari ini', 'href' => route('today.index'), 'icon' => 'check'],
             ['label' => 'Focus', 'href' => route('focus.index'), 'icon' => 'clock'],
@@ -236,5 +230,11 @@ class QuickCapture extends Component
                 'icon' => 'book',
             ])
             ->all();
+    }
+
+    protected function searchWorkspace(string $term, string $model, string $column, string $route, string $icon): array
+    {
+        return $model::query()->where($column, 'like', '%'.$term.'%')->orderBy($column)->limit(5)->get()
+            ->map(fn ($record) => ['label' => $record->{$column}, 'href' => route($route, $record), 'icon' => $icon])->all();
     }
 }

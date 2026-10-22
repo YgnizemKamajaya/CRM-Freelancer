@@ -34,7 +34,7 @@
 
         <div class="flex flex-wrap items-center gap-4 text-sm" style="color: var(--crm-subtle);">
             <span>{{ $entry->word_count }} kata</span>
-            @if ($entry->client)<span>· Client: <a href="{{ route('clients.show', $entry->client) }}" style="color: var(--crm-muted);">{{ $entry->client->name }}</a></span>@endif
+            @if ($entry->client)<span>· Client: <x-client-link :client="$entry->client" /></span>@endif
             @if ($entry->project)<span>· Project: {{ $entry->project->title }}</span>@endif
         </div>
 

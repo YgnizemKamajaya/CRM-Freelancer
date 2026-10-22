@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\ChecklistItem;
 use App\Models\Task;
+use App\Services\ProjectProgressService;
 use Livewire\Component;
 
 /**
@@ -66,6 +67,10 @@ class HomeFocusList extends Component
             Task::whereKey($item->task_id)
                 ->whereNotIn('status', ['done', 'cancelled'])
                 ->update(['status' => 'done', 'completed_at' => now()]);
+            $project = Task::find($item->task_id)?->project;
+            if ($project) {
+                app(ProjectProgressService::class)->sync($project);
+            }
         }
     }
 }

@@ -8,10 +8,10 @@ use App\Models\Project;
 use App\Models\VaultFile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VaultController extends Controller
 {
@@ -23,6 +23,7 @@ class VaultController extends Controller
     //   by the `pin` middleware. See AUDIT-TODO.md.
 
     private const DISK = 'local';
+
     private const DIR = 'vault';
 
     public function index(Request $request): View
@@ -55,11 +56,14 @@ class VaultController extends Controller
 
         foreach ($request->file('files') as $upload) {
             $path = $upload->store(self::DIR, self::DISK);
+            if (! $path) {
+                throw ValidationException::withMessages(['files' => 'File belum tersimpan. Coba lagi.']);
+            }
 
             VaultFile::create([
                 'name' => $upload->getClientOriginalName(),
                 'original_name' => $upload->getClientOriginalName(),
-                'mime' => $upload->getClientMimeType(),
+                'mime' => Storage::disk(self::DISK)->mimeType($path) ?: 'application/octet-stream',
                 'size' => $upload->getSize(),
                 'disk' => self::DISK,
                 'path' => $path,
@@ -78,7 +82,13 @@ class VaultController extends Controller
 
         abort_unless(Storage::disk($file->disk)->exists($file->path), 404);
 
-        $mime = $file->mime ?: (Storage::disk($file->disk)->mimeType($file->path) ?: 'application/octet-stream');
+        // Inspect stored bytes, including old uploads whose metadata came from the client.
+        $mime = Storage::disk($file->disk)->mimeType($file->path) ?: 'application/octet-stream';
+        if (! in_array($mime, [...VaultFile::PREVIEW_IMAGE_TYPES, 'application/pdf'], true)) {
+            return Storage::disk($file->disk)->download($file->path, $file->original_name, [
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
 
         return response()->stream(function () use ($file) {
             $stream = Storage::disk($file->disk)->readStream($file->path);
@@ -90,6 +100,8 @@ class VaultController extends Controller
             }
         }, 200, [
             'Content-Type' => $mime,
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Security-Policy' => "default-src 'none'; sandbox",
             'Content-Disposition' => 'inline; filename="'.addslashes($file->original_name).'"',
             'Cache-Control' => 'private, max-age=86400',
         ]);

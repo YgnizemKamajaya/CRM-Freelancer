@@ -4,7 +4,7 @@
 
     <div x-data="{}">
         @if ($editing)
-            <x-confirm-action :action="route('journal.destroy', $entry)" label="Hapus" title="Hapus entri?" body="Tindakan ini tidak bisa dibatalkan." />
+            <x-confirm-action :hide-trigger="true" :action="route('journal.destroy', $entry)" label="Hapus" title="Hapus entri?" body="Tindakan ini tidak bisa dibatalkan." />
         @endif
 
         <form method="POST" action="{{ $editing ? route('journal.update', $entry) : route('journal.store') }}" class="mx-auto max-w-3xl space-y-6">

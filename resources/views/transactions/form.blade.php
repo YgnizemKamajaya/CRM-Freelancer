@@ -4,7 +4,7 @@
 
     <div x-data="{}">
         @if ($editing)
-            <x-confirm-action :action="route('transactions.destroy', $transaction)" label="Hapus" title="Hapus transaksi?" body="Tindakan ini tidak bisa dibatalkan." />
+            <x-confirm-action :hide-trigger="true" :action="route('transactions.destroy', $transaction)" label="Hapus" title="Hapus transaksi?" body="Tindakan ini tidak bisa dibatalkan." />
         @endif
 
         <form method="POST" action="{{ $editing ? route('transactions.update', $transaction) : route('transactions.store') }}" class="mx-auto max-w-2xl space-y-6">

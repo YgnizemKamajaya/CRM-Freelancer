@@ -12,7 +12,7 @@
             <div class="min-w-0">
                 <p class="crm-eyebrow">Personal</p>
                 <h2 class="text-2xl font-semibold" style="color: var(--crm-heading);">Finance</h2>
-                <p class="mt-1 text-sm" style="color: var(--crm-muted);">Ringkasan keuangan bulan ini.</p>
+                <p class="mt-1 text-sm" style="color: var(--crm-muted);">Ringkasan keuangan bulan ini. Total saldo mencakup wallet aktif dan arsip; arsip tidak menghapus aset.</p>
             </div>
             <div class="personal-hero-side">
                 <div class="personal-mascot is-finance" aria-hidden="true">

@@ -1,8 +1,4 @@
 @php
-    $setting = \App\Models\Setting::firstOrCreate([], [
-        'owner_name' => config('crm.owner_name'),
-        'owner_email' => config('crm.owner_email'),
-    ]);
     $ownerAvatar = $setting->logo_path ?: $setting->avatar_path;
     $ownerName = $setting->owner_name ?: config('crm.owner_name');
 @endphp
@@ -16,11 +12,6 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
     <title>Lock Screen - {{ config('app.name', 'Freelance CRM') }}</title>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -624,12 +615,12 @@
             <div class="profile-role">Workspace Owner</div>
         </div>
 
+        @if ($useNumpad)
         <!-- PIN Dots -->
         <div class="pin-display" id="pinDisplay">
-            <div class="pin-dot" data-index="0"></div>
-            <div class="pin-dot" data-index="1"></div>
-            <div class="pin-dot" data-index="2"></div>
-            <div class="pin-dot" data-index="3"></div>
+            @for ($i = 0; $i < $pinLength; $i++)
+                <div class="pin-dot" data-index="{{ $i }}"></div>
+            @endfor
         </div>
 
         <!-- Status -->
@@ -656,6 +647,20 @@
                 </svg>
             </button>
         </div>
+        @else
+            @if ($pinConfigurationValid)
+                <form method="POST" action="{{ route('login') }}" style="width:100%;display:grid;gap:1rem;">
+                    @csrf
+                    <label for="workspace-pin" class="status-message">Enter PIN to unlock</label>
+                    <input id="workspace-pin" type="password" name="pin" required autofocus maxlength="128" autocomplete="current-password"
+                        style="width:100%;padding:0.8rem;border-radius:0.5rem;border:1px solid var(--crm-line-strong);background:var(--crm-surface-soft);color:var(--crm-heading);">
+                    <button type="submit" class="btn-continue" style="margin-top:0;">Unlock workspace</button>
+                </form>
+            @else
+                <p class="status-message error">CRM_PIN harus berisi 1–128 karakter. Perbarui konfigurasi workspace.</p>
+            @endif
+        @endif
+        @error('pin') <p class="status-message error" role="alert">{{ $message }}</p> @enderror
     </div>
 
     <!-- Success Overlay -->
@@ -829,7 +834,8 @@
             // ──────────────────────────────────────
             // PIN Configuration
             // ──────────────────────────────────────
-            const MAX_PIN_LENGTH = 4;
+            const MAX_PIN_LENGTH = {{ $pinLength }};
+            if (!document.getElementById('pinDisplay')) return;
             const AUTO_REDIRECT_DELAY = 1800; // ms before auto-redirect after success
 
             // DOM elements

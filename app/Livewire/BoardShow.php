@@ -5,8 +5,11 @@ namespace App\Livewire;
 use App\Models\Board;
 use App\Models\BoardColumn;
 use App\Models\Card;
+use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -32,11 +35,19 @@ class BoardShow extends Component
 
     // Card editor modal state.
     public bool $editingCard = false;
+
     public ?int $editingCardId = null;
+
     public string $cardTitle = '';
+
+    public ?int $promotionClientId = null;
+
     public string $cardBody = '';
+
     public string $cardTags = '';
+
     public string $cardPriority = 'medium';
+
     public ?string $cardDueOn = null;
 
     public function mount(Board $board): void
@@ -54,6 +65,7 @@ class BoardShow extends Component
         return view('livewire.board-show', [
             'columns' => $columns,
             'priorities' => Card::PRIORITIES,
+            'clients' => Client::orderBy('name')->get(),
         ]);
     }
 
@@ -107,6 +119,8 @@ class BoardShow extends Component
 
     public function editCard(int $cardId): void
     {
+        $this->promotionClientId = null;
+        $this->resetValidation();
         $card = $this->ownedCard($cardId);
 
         $this->editingCardId = $card->id;
@@ -151,22 +165,30 @@ class BoardShow extends Component
      */
     public function convertToProject(int $cardId): void
     {
-        $card = $this->ownedCard($cardId);
+        $project = DB::transaction(function () use ($cardId) {
+            $card = $this->ownedCard($cardId);
+            $card = Card::whereKey($card->id)->lockForUpdate()->firstOrFail();
+            if ($card->project_id) {
+                $project = Project::find($card->project_id);
+                if (! $project) {
+                    throw ValidationException::withMessages(['promotionClientId' => 'Project terkait sudah diarsipkan. Pulihkan project sebelum melanjutkan.']);
+                }
 
-        if ($card->project_id) {
-            $this->redirectRoute('projects.show', $card->project_id, navigate: true);
+                return $project;
+            }
+            $this->validate(['promotionClientId' => ['required', Rule::exists('clients', 'id')->whereNull('deleted_at')]]);
+            $project = Project::create([
+                'client_id' => $this->promotionClientId,
+                'title' => $card->title,
+                'description' => $card->body,
+                'status' => 'planned',
+                'priority' => $card->priority,
+                'currency' => config('crm.currency', 'IDR'),
+            ]);
+            $card->update(['project_id' => $project->id]);
 
-            return;
-        }
-
-        $project = Project::create([
-            'title' => $card->title,
-            'description' => $card->body,
-            'status' => 'planned',
-            'priority' => $card->priority,
-        ]);
-
-        $card->update(['project_id' => $project->id]);
+            return $project;
+        });
 
         $this->redirectRoute('projects.edit', $project, navigate: true);
     }

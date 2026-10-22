@@ -6,14 +6,17 @@
     'body' => 'This action cannot be undone.',
     'confirmLabel' => 'Confirm',
     'buttonClass' => 'crm-button-danger',
+    'hideTrigger' => false,
 ])
 
 @php($modalName = 'confirm-action-'.md5($action.$label.$title))
 
 <div>
+    @unless ($hideTrigger)
     <button type="button" class="{{ $buttonClass }}" x-data x-on:click.prevent="$dispatch('open-modal', '{{ $modalName }}')">
         {{ $label }}
     </button>
+    @endunless
 
     <x-modal :name="$modalName" focusable>
         <form method="POST" action="{{ $action }}" class="p-6">

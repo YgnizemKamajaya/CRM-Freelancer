@@ -55,7 +55,7 @@
                                         {{ $tx->type === 'income' ? '+' : '−' }}{{ $money($tx->amount) }}
                                     </td>
                                     <td class="px-4 py-3 text-right">
-                                        <a href="{{ route('transactions.edit', $tx) }}" class="font-medium" style="color: var(--crm-heading);">Edit</a>
+                                        <a href="{{ $tx->invoice_payment_id ? route('invoices.edit', $tx->invoice_payment_id) : route('transactions.edit', $tx) }}" class="font-medium" style="color: var(--crm-heading);">Edit</a>
                                     </td>
                                 </tr>
                             @endforeach

@@ -2,10 +2,6 @@
 <x-app-layout>
     <x-slot:title>Invoices</x-slot:title>
 
-    @push('head')
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
-    @endpush
-
     {{-- ===== E-Signature Alpine Component (wraps button + modal together) ===== --}}
     <div x-data="esignModal()" x-init="init()">
 
@@ -226,14 +222,14 @@
     </div>{{-- end x-data="esignModal()" --}}
 
     @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
     <script>
     function esignModal() {
         return {
             open: false,
             currentUrl: @json(
-                optional(\App\Models\Setting::first())->signature_path
-                    ? \Illuminate\Support\Facades\Storage::disk('public')->url(\App\Models\Setting::first()->signature_path)
+                $setting->signature_path
+                    ? \Illuminate\Support\Facades\Storage::disk('public')->url($setting->signature_path)
                     : null
             ),
             showCropper: false,
@@ -267,6 +263,11 @@
             },
 
             openCropper(file) {
+                if (typeof window.Cropper !== 'function') {
+                    this.message = 'Editor gambar belum siap. Muat ulang halaman lalu coba lagi.';
+                    this.messageType = 'error';
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.showCropper = true;

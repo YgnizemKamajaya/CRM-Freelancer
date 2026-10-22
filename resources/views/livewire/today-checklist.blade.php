@@ -18,6 +18,13 @@
         </div>
     </div>
 
+    <div class="mb-4 flex flex-wrap items-center gap-2">
+        <button wire:click="changeDate(-1)" class="crm-button-secondary" aria-label="Hari sebelumnya"><x-icon name="chevron-left" /></button>
+        <input type="date" wire:model.live="date" class="crm-field mt-0" style="width:auto" aria-label="Tanggal checklist">
+        <button wire:click="changeDate(1)" class="crm-button-secondary" aria-label="Hari berikutnya"><x-icon name="chevron-right" /></button>
+        <a href="{{ route('today.index') }}" wire:navigate class="crm-button-secondary">Hari ini</a>
+    </div>
+    <p class="mb-4 text-xs" style="color:var(--crm-muted)">Mencentang item menyelesaikan task CRM terkait. Untuk membuka task lagi, gunakan Buka kembali di Tasks.</p>
     @if ($items->count())
         <div class="crm-meter mb-5">
             <div style="width: {{ $items->count() ? (int) round(($doneCount / $items->count()) * 100) : 0 }}%"></div>

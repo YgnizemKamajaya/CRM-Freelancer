@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ValidatesCrmRelations;
-use App\Models\Client;
 use App\Models\Activity;
+use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -66,7 +66,11 @@ class ClientController extends Controller
             'tasks' => fn ($query) => $query->latest('due_at')->limit(8),
             'invoices' => fn ($query) => $query->latest()->limit(8),
             'activities' => fn ($query) => $query->latest('activity_at')->latest()->limit(12),
-        ]);
+        ])->loadCount(['deals', 'projects'])
+            ->loadSum(['invoices as invoiced_total' => fn ($query) => $query->where('status', '!=', 'cancelled')], 'total');
+
+        $client->outstanding_total = $client->invoices()->whereNotIn('status', ['paid', 'cancelled'])
+            ->selectRaw('coalesce(sum(case when total > amount_paid then total - amount_paid else 0 end), 0) as balance_total')->value('balance_total');
 
         return view('clients.show', [
             'client' => $client,

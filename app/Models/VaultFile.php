@@ -12,6 +12,10 @@ class VaultFile extends Model
 {
     use HasFactory;
 
+    public const PREVIEW_IMAGE_TYPES = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/avif',
+    ];
+
     protected $fillable = [
         'name',
         'original_name',
@@ -50,7 +54,7 @@ class VaultFile extends Model
 
     public function isImage(): bool
     {
-        return str_starts_with((string) $this->mime, 'image/');
+        return in_array($this->mime, self::PREVIEW_IMAGE_TYPES, true);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder
@@ -68,7 +72,7 @@ class VaultFile extends Model
 
     public function client(): BelongsTo
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function project(): BelongsTo

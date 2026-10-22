@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <form method="GET" class="crm-card personal-filter grid gap-3 p-4 md:grid-cols-[1fr_160px_auto]">
+        <form method="GET" class="crm-card personal-filter grid gap-3 p-4 md:grid-cols-[1fr_160px_160px_auto]">
             <input name="search" value="{{ request('search') }}" class="crm-field mt-0" placeholder="Cari judul atau isi">
             <select name="mood" class="crm-field mt-0">
                 <option value="">Semua mood</option>
@@ -66,7 +66,12 @@
                     <option value="{{ $value }}" @selected((string) request('mood') === (string) $value)>{{ $moodEmoji[$value] }} {{ $label }}</option>
                 @endforeach
             </select>
+            <input type="date" name="date" value="{{ request('date') }}" class="crm-field mt-0" aria-label="Tanggal entri">
+            @if (request()->filled('tag')) <input type="hidden" name="tag" value="{{ request('tag') }}"> @endif
             <button class="crm-button-secondary">Filter</button>
+            @if (request()->filled('date'))
+                <a href="{{ request()->fullUrlWithoutQuery('date') }}" class="crm-button-secondary">Hapus filter {{ request('date') }}</a>
+            @endif
         </form>
 
         @if ($entries->count())

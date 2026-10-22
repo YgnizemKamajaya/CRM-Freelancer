@@ -46,7 +46,7 @@ class ProjectController extends Controller
 
         return view('projects.index', [
             'projects' => $projects,
-            'clients' => Client::orderBy('name')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
             'statuses' => Project::STATUSES,
         ]);
     }
@@ -62,8 +62,8 @@ class ProjectController extends Controller
                 'currency' => 'IDR',
                 'progress' => 0,
             ]),
-            'clients' => Client::orderBy('name')->get(),
-            'deals' => Deal::with('client')->orderBy('title')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
+            'deals' => $this->relationOptions(Deal::class, 'deal_id')->with('client')->orderBy('title')->get(),
             'statuses' => Project::STATUSES,
             'priorities' => Project::PRIORITIES,
         ]);
@@ -130,8 +130,8 @@ class ProjectController extends Controller
 
         return view('projects.form', [
             'project' => $project,
-            'clients' => Client::orderBy('name')->get(),
-            'deals' => Deal::with('client')->orderBy('title')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
+            'deals' => $this->relationOptions(Deal::class, 'deal_id')->with('client')->orderBy('title')->get(),
             'statuses' => Project::STATUSES,
             'priorities' => Project::PRIORITIES,
         ]);

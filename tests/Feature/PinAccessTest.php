@@ -19,7 +19,7 @@ class PinAccessTest extends TestCase
     {
         $this->get('/login')
             ->assertOk()
-            ->assertSee('Unlock workspace');
+            ->assertSee('Enter PIN to unlock');
     }
 
     public function test_valid_pin_unlocks_workspace(): void

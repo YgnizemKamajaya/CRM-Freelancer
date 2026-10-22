@@ -159,7 +159,7 @@ class TaskController extends Controller
         $task->delete();
         $this->syncProjectProgress(Project::find($projectId));
 
-        return back()->with('status', 'Task deleted.');
+        return redirect()->route('tasks.index')->with('status', 'Task deleted.');
     }
 
     /**
@@ -212,10 +212,10 @@ class TaskController extends Controller
     private function formData(Request $request): array
     {
         return [
-            'clients' => Client::orderBy('name')->get(),
-            'deals' => Deal::orderBy('title')->get(),
-            'projects' => Project::orderBy('title')->get(),
-            'invoices' => Invoice::orderByDesc('issue_date')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
+            'deals' => $this->relationOptions(Deal::class, 'deal_id')->orderBy('title')->get(),
+            'projects' => $this->relationOptions(Project::class, 'project_id')->orderBy('title')->get(),
+            'invoices' => $this->relationOptions(Invoice::class, 'invoice_id')->orderByDesc('issue_date')->get(),
             'types' => Task::TYPES,
             'statuses' => Task::STATUSES,
             'priorities' => Task::PRIORITIES,

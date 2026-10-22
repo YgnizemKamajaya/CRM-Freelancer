@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\Budget;
+use App\Models\Goal;
 use App\Models\Invoice;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
-// TODO(audit D2): add savings-goal progress (target tabungan) — planned, not built. See AUDIT-TODO.md.
 class FinanceService
 {
     /**
@@ -120,7 +122,7 @@ class FinanceService
      * Live amount for an auto-tracked financial goal:
      * a specific wallet's balance, or total balance across all wallets.
      */
-    public function goalCurrentAmount(\App\Models\Goal $goal): float
+    public function goalCurrentAmount(Goal $goal): float
     {
         if (! $goal->auto_track || $goal->type !== 'financial') {
             return (float) $goal->current_amount;
@@ -135,32 +137,47 @@ class FinanceService
         return (float) $wallets->sum('balance');
     }
 
-    /**
-     * Auto-record income when an invoice is marked paid, so there's no double entry.
-     * Silently skips if no wallet exists yet, or a transaction was already recorded for this invoice.
-     */
+    /** Reconcile one managed income entry; manually linked income is preserved. */
     public function recordInvoicePayment(Invoice $invoice): ?Transaction
     {
-        if (Transaction::query()->where('invoice_id', $invoice->id)->exists()) {
-            return null;
-        }
+        return DB::transaction(function () use ($invoice) {
+            $invoice = Invoice::withTrashed()->whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            $payment = Transaction::where('invoice_payment_id', $invoice->id)->first();
+            $manualIncome = (float) Transaction::where('invoice_id', $invoice->id)
+                ->whereNull('invoice_payment_id')->where('type', 'income')
+                ->where('currency', $invoice->currency)->sum('amount');
+            $amount = $invoice->trashed() || $invoice->status === 'cancelled'
+                ? 0 : round(max(0, (float) $invoice->amount_paid - $manualIncome), 2);
 
-        $wallet = Wallet::query()->where('is_archived', false)->orderBy('id')->first();
+            if ($amount <= 0) {
+                $payment?->delete();
 
-        if (! $wallet || (float) $invoice->amount_paid <= 0) {
-            return null;
-        }
+                return null;
+            }
 
-        return Transaction::create([
-            'wallet_id' => $wallet->id,
-            'type' => 'income',
-            'category' => 'Client work',
-            'amount' => $invoice->amount_paid,
-            'currency' => $invoice->currency,
-            'note' => 'Auto dari invoice '.$invoice->invoice_number,
-            'occurred_on' => ($invoice->paid_at?->toDateString()) ?? today()->toDateString(),
-            'invoice_id' => $invoice->id,
-            'project_id' => $invoice->project_id,
-        ]);
+            $wallet = $payment?->wallet;
+            if (! $wallet || $wallet->currency !== $invoice->currency) {
+                $wallet = Wallet::where('is_archived', false)->where('currency', $invoice->currency)->orderBy('id')->first();
+            }
+            if (! $wallet) {
+                if ($payment) {
+                    throw ValidationException::withMessages(['currency' => 'Buat wallet dengan mata uang invoice sebelum mengganti mata uang pembayaran.']);
+                }
+
+                return null;
+            }
+
+            return Transaction::updateOrCreate(['invoice_payment_id' => $invoice->id], [
+                'wallet_id' => $wallet->id,
+                'invoice_id' => $invoice->id,
+                'type' => 'income',
+                'category' => 'Client work',
+                'amount' => $amount,
+                'currency' => $invoice->currency,
+                'note' => 'Auto dari invoice '.$invoice->invoice_number,
+                'occurred_on' => ($payment?->occurred_on ?? $invoice->paid_at ?? today())->toDateString(),
+                'project_id' => $invoice->project_id,
+            ]);
+        });
     }
 }

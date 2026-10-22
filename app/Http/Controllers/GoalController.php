@@ -8,19 +8,15 @@ use App\Models\Wallet;
 use App\Services\FinanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class GoalController extends Controller
 {
     use ValidatesCrmRelations;
-
-    // TODO(audit V7): goal banner image upload/serve can't be tested statically
-    //   (no vendor; PHP upload limits are env-specific). Verify uploads land in
-    //   storage/app/goal-banners (private) and the banner route is PIN-gated.
-    //   See AUDIT-TODO.md.
 
     private const BANNER_DIR = 'goal-banners';
 
@@ -58,7 +54,14 @@ class GoalController extends Controller
         $data = $this->validated($request);
         $data['banner_path'] = $this->storeBanner($request);
 
-        Goal::create($data);
+        try {
+            Goal::create($data);
+        } catch (\Throwable $exception) {
+            if ($data['banner_path']) {
+                Storage::disk('local')->delete($data['banner_path']);
+            }
+            throw $exception;
+        }
 
         return redirect()->route('goals.index')->with('status', 'Goal dibuat.');
     }
@@ -67,7 +70,7 @@ class GoalController extends Controller
     {
         $this->authorizeOwner($goal);
 
-        return view('goals.form', $this->formData() + ['goal' => $goal]);
+        return view('goals.form', $this->formData($goal) + ['goal' => $goal]);
     }
 
     public function update(Request $request, Goal $goal): RedirectResponse
@@ -76,15 +79,25 @@ class GoalController extends Controller
 
         $data = $this->validated($request);
 
-        if ($newPath = $this->storeBanner($request)) {
-            $this->deleteBanner($goal);
+        $previousPath = $goal->banner_path;
+        $newPath = $this->storeBanner($request);
+        if ($newPath) {
             $data['banner_path'] = $newPath;
         } elseif ($request->boolean('remove_banner')) {
-            $this->deleteBanner($goal);
             $data['banner_path'] = null;
         }
 
-        $goal->update($data);
+        try {
+            $goal->update($data);
+        } catch (\Throwable $exception) {
+            if ($newPath) {
+                Storage::disk('local')->delete($newPath);
+            }
+            throw $exception;
+        }
+        if ($previousPath && array_key_exists('banner_path', $data) && $previousPath !== $data['banner_path']) {
+            Storage::disk('local')->delete($previousPath);
+        }
 
         return redirect()->route('goals.index')->with('status', 'Goal diperbarui.');
     }
@@ -133,14 +146,12 @@ class GoalController extends Controller
             return null;
         }
 
-        return $request->file('banner_image')->store(self::BANNER_DIR, 'local');
-    }
-
-    private function deleteBanner(Goal $goal): void
-    {
-        if ($goal->banner_path && Storage::disk('local')->exists($goal->banner_path)) {
-            Storage::disk('local')->delete($goal->banner_path);
+        $path = $request->file('banner_image')->store(self::BANNER_DIR, 'local');
+        if (! $path) {
+            throw ValidationException::withMessages(['banner_image' => 'Gambar belum tersimpan. Coba lagi.']);
         }
+
+        return $path;
     }
 
     /**
@@ -162,6 +173,10 @@ class GoalController extends Controller
             'is_pinned' => ['sometimes', 'boolean'],
         ]);
 
+        // Unchecked HTML checkboxes are omitted from the request.
+        $data['auto_track'] = $request->boolean('auto_track');
+        $data['is_pinned'] = $request->boolean('is_pinned');
+
         // auto_track only makes sense for financial goals.
         if (($data['type'] ?? null) !== 'financial') {
             $data['auto_track'] = false;
@@ -177,12 +192,14 @@ class GoalController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function formData(): array
+    private function formData(?Goal $goal = null): array
     {
         return [
             'types' => Goal::TYPES,
             'gradients' => Goal::GRADIENTS,
-            'wallets' => Wallet::where('is_archived', false)->orderBy('name')->get(),
+            'wallets' => Wallet::where(fn ($query) => $query->where('is_archived', false)
+                ->when($goal?->wallet_id, fn ($query) => $query->orWhere('id', $goal->wallet_id)))
+                ->orderBy('name')->get(),
         ];
     }
 }

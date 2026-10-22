@@ -70,7 +70,7 @@
                     <div class="crm-card personal-file-card flex flex-col p-4">
                         @if ($file->isImage())
                             <div class="group relative mb-3 flex h-36 items-center justify-center overflow-hidden rounded-lg cursor-pointer" style="background: var(--crm-surface-soft);"
-                                @click="openPhotobox('{{ route('vault.preview', $file) }}', '{{ e($file->original_name) }}', '{{ $file->humanSize() }}', '{{ route('vault.download', $file) }}')">
+                                @click="openPhotobox(@js(route('vault.preview', $file)), @js($file->original_name), @js($file->humanSize()), @js(route('vault.download', $file)))">
                                 <img src="{{ route('vault.preview', $file) }}" alt="{{ $file->original_name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
                                 <div class="absolute inset-0 flex items-center justify-center gap-1.5 bg-black/40 text-xs font-semibold text-white opacity-0 backdrop-blur-[2px] transition-opacity group-hover:opacity-100">
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -89,7 +89,7 @@
                         @if ($file->client)<p class="text-xs" style="color: var(--crm-muted);">{{ $file->client->name }}</p>@endif
                         <div class="mt-3 flex items-center gap-3 border-t pt-3" style="border-color: var(--crm-line);">
                             @if ($file->isImage())
-                                <button type="button" @click="openPhotobox('{{ route('vault.preview', $file) }}', '{{ e($file->original_name) }}', '{{ $file->humanSize() }}', '{{ route('vault.download', $file) }}')" class="text-sm font-medium transition hover:opacity-80" style="color: var(--crm-action);">Prinjau</button>
+                                <button type="button" @click="openPhotobox(@js(route('vault.preview', $file)), @js($file->original_name), @js($file->humanSize()), @js(route('vault.download', $file)))" class="text-sm font-medium transition hover:opacity-80" style="color: var(--crm-action);">Prinjau</button>
                             @endif
                             <a href="{{ route('vault.download', $file) }}" class="text-sm font-medium" style="color: var(--crm-heading);">Unduh</a>
                             <form method="POST" action="{{ route('vault.destroy', $file) }}" class="ml-auto" onsubmit="return confirm('Hapus file ini?')">

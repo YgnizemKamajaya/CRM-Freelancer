@@ -43,6 +43,7 @@ class Transaction extends Model
         'note',
         'occurred_on',
         'invoice_id',
+        'invoice_payment_id',
         'project_id',
     ];
 

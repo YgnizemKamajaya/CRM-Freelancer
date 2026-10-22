@@ -13,7 +13,7 @@
     <ul class="home-checklist">
         @foreach ($items as $item)
             <li wire:key="hf-{{ $item->id }}">
-                <button wire:click="toggle({{ $item->id }})" class="home-check {{ $item->is_done ? 'is-done' : '' }}" aria-label="Tandai selesai">
+                <button wire:click="toggle({{ $item->id }})" class="home-check {{ $item->is_done ? 'is-done' : '' }}" aria-label="{{ $item->is_done ? 'Batalkan centang checklist' : 'Tandai selesai' }}" title="Task CRM yang sudah selesai dibuka kembali melalui Tasks">
                     @if ($item->is_done)<x-icon name="check" class="h-3 w-3" />@endif
                 </button>
                 <span class="{{ $item->is_done ? 'home-check-done' : '' }}">{{ $item->title }}</span>

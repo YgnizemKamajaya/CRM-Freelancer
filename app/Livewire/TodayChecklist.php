@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Models\ChecklistItem;
 use App\Models\Task;
+use App\Services\ProjectProgressService;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 #[Layout('layouts.app')]
@@ -15,12 +18,25 @@ class TodayChecklist extends Component
     // TODO(audit V5): verify wire:sort reorder persists and Livewire auto-discovers
     //   this component. Requires npm run build. See AUDIT-TODO.md.
 
-    public string $date;
+    #[Url]
+    public string $date = '';
+
     public string $newTitle = '';
 
     public function mount(?string $date = null): void
     {
-        $this->date = $date ?: today()->toDateString();
+        $this->date = $date ?: ($this->date ?: today()->toDateString());
+        $this->validate(['date' => ['required', 'date_format:Y-m-d']]);
+    }
+
+    public function updatedDate(): void
+    {
+        $this->validate(['date' => ['required', 'date_format:Y-m-d']]);
+    }
+
+    public function changeDate(int $offset): void
+    {
+        $this->date = Carbon::parse($this->date)->addDays($offset)->toDateString();
     }
 
     public function render()
@@ -73,6 +89,10 @@ class TodayChecklist extends Component
             Task::whereKey($item->task_id)
                 ->whereNotIn('status', ['done', 'cancelled'])
                 ->update(['status' => 'done', 'completed_at' => now()]);
+            $project = Task::find($item->task_id)?->project;
+            if ($project) {
+                app(ProjectProgressService::class)->sync($project);
+            }
         }
     }
 
@@ -143,7 +163,7 @@ class TodayChecklist extends Component
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, Task>
+     * @return Collection<int, Task>
      */
     protected function pullableTasks()
     {

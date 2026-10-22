@@ -1,0 +1,38 @@
+{
+  "mode": "SQLite read-only connection; PRAGMA query_only=ON",
+  "wallet_count": 0,
+  "transaction_count": 0,
+  "payment_gaps": [
+    {
+      "invoice_number": "INV-0003",
+      "status": "partially_paid",
+      "currency": "IDR",
+      "total": 7250000,
+      "amount_paid": 3625000,
+      "matches_demo_seed": true,
+      "compatible_wallets": [],
+      "candidate_income": []
+    },
+    {
+      "invoice_number": "INV-0004",
+      "status": "paid",
+      "currency": "IDR",
+      "total": 8500000,
+      "amount_paid": 8500000,
+      "matches_demo_seed": true,
+      "compatible_wallets": [],
+      "candidate_income": []
+    },
+    {
+      "invoice_number": "INV-0007",
+      "status": "paid",
+      "currency": "IDR",
+      "total": 12250000,
+      "amount_paid": 12250000,
+      "matches_demo_seed": true,
+      "compatible_wallets": [],
+      "candidate_income": []
+    }
+  ],
+  "decision": "No automatic correction: demo-pattern invoices have no recorded receipt destination. Creating wallets or income would introduce financial assumptions."
+}

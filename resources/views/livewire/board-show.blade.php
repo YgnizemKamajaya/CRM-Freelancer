@@ -7,7 +7,8 @@
                 <p class="mt-1 text-sm" style="color: var(--crm-muted);">{{ $board->description }}</p>
             @endif
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <x-confirm-action :action="route('workspace.destroy', $board)" label="Hapus board" title="Hapus board?" body="Semua kolom dan kartu di board ini akan dihapus. Project terkait tetap disimpan." />
             <form wire:submit="addColumn" class="flex items-center gap-2">
                 <input wire:model="newColumnName" class="crm-field mt-0" style="width: 11rem;" placeholder="Kolom baru...">
                 <button class="crm-button-secondary"><x-icon name="plus" class="h-4 w-4" />Kolom</button>
@@ -16,6 +17,17 @@
     </div>
     @error('newColumnName') <p class="mb-3 text-sm text-expense">{{ $message }}</p> @enderror
 
+    <details class="crm-card mb-5 p-4">
+        <summary class="cursor-pointer text-sm font-semibold">Edit board</summary>
+        <form method="POST" action="{{ route('workspace.update', $board) }}" class="mt-4 grid gap-3 sm:grid-cols-2">
+            @csrf @method('PUT')
+            <label class="crm-label">Nama<input name="name" value="{{ old('name', $board->name) }}" required maxlength="255" class="crm-field"></label>
+            <label class="crm-label">Tipe<select name="type" class="crm-field">@foreach (\App\Models\Board::TYPES as $value => $label)<option value="{{ $value }}" @selected(old('type', $board->type) === $value)>{{ $label }}</option>@endforeach</select></label>
+            <label class="crm-label sm:col-span-2">Deskripsi<textarea name="description" maxlength="1000" class="crm-field">{{ old('description', $board->description) }}</textarea></label>
+            <x-input-error :messages="$errors->all()" />
+            <button class="crm-button-primary justify-self-start">Simpan board</button>
+        </form>
+    </details>
     <div class="kanban-scroll flex gap-4 overflow-x-auto pb-4">
         @foreach ($columns as $column)
             <div class="kanban-column" wire:key="col-{{ $column->id }}">
@@ -109,7 +121,15 @@
                     </div>
                 </div>
 
-                <div class="mt-5 flex items-center justify-between gap-3">
+                <div class="mt-4">
+                    <label class="crm-label" for="promotion-client">Client untuk project</label>
+                    <select id="promotion-client" wire:model="promotionClientId" class="crm-field">
+                        <option value="">Pilih client sebelum menjadikan project</option>
+                        @foreach ($clients as $client)<option value="{{ $client->id }}">{{ $client->name }}</option>@endforeach
+                    </select>
+                    @error('promotionClientId') <p class="mt-1 text-sm text-expense">{{ $message }}</p> @enderror
+                </div>
+                <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <button wire:click="deleteCard({{ $editingCardId }})" wire:confirm="Hapus kartu ini?" class="crm-button-secondary text-expense">Hapus</button>
                         <button wire:click="convertToProject({{ $editingCardId }})" class="crm-button-secondary"><x-icon name="briefcase" class="h-4 w-4" />Jadikan project</button>

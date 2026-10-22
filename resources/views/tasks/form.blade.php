@@ -2,6 +2,9 @@
 <x-app-layout>
     <x-slot:title>{{ $editing ? 'Edit Task' : 'Add Task' }}</x-slot:title>
 
+    @if ($editing)
+        <div class="mb-4 flex justify-end"><x-confirm-action :action="route('tasks.destroy', $task)" label="Delete task" title="Delete task?" body="This task will be removed." /></div>
+    @endif
     <form method="POST" action="{{ $editing ? route('tasks.update', $task) : route('tasks.store') }}" class="mx-auto max-w-3xl space-y-6">
         @csrf
         @if ($editing)

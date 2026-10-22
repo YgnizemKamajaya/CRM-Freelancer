@@ -53,9 +53,13 @@ class TransactionController extends Controller
         return redirect()->route('transactions.index')->with('status', 'Transaction recorded.');
     }
 
-    public function edit(Transaction $transaction): View
+    public function edit(Transaction $transaction): View|RedirectResponse
     {
         $this->authorizeOwner($transaction);
+
+        if ($transaction->invoice_payment_id) {
+            return redirect()->route('invoices.edit', $transaction->invoice_payment_id)->with('status', 'Pembayaran otomatis dikelola melalui invoice.');
+        }
 
         return view('transactions.form', $this->formData() + [
             'transaction' => $transaction,
@@ -65,6 +69,7 @@ class TransactionController extends Controller
     public function update(Request $request, Transaction $transaction): RedirectResponse
     {
         $this->authorizeOwner($transaction);
+        abort_if($transaction->invoice_payment_id, 409, 'Ubah pembayaran melalui invoice terkait.');
         $transaction->update($this->validated($request));
 
         return redirect()->route('transactions.index')->with('status', 'Transaction updated.');
@@ -73,6 +78,7 @@ class TransactionController extends Controller
     public function destroy(Transaction $transaction): RedirectResponse
     {
         $this->authorizeOwner($transaction);
+        abort_if($transaction->invoice_payment_id, 409, 'Ubah pembayaran melalui invoice terkait.');
         $transaction->delete();
 
         return redirect()->route('transactions.index')->with('status', 'Transaction deleted.');
@@ -102,7 +108,7 @@ class TransactionController extends Controller
     {
         return [
             'wallets' => Wallet::orderBy('name')->get(),
-            'projects' => Project::with('client')->orderBy('title')->get(),
+            'projects' => $this->relationOptions(Project::class, 'project_id')->with('client')->orderBy('title')->get(),
             'types' => Transaction::TYPES,
             'suggestedCategories' => Transaction::SUGGESTED_CATEGORIES,
         ];

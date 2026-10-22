@@ -38,7 +38,7 @@
                     <h3 class="text-lg font-semibold text-gray-900">Deal summary</h3>
                     <p class="mt-3 text-sm leading-6 text-gray-600">{{ $deal->description ?: 'No description yet.' }}</p>
                     <dl class="mt-4 grid gap-3 text-sm md:grid-cols-2">
-                        <div><dt class="text-gray-500">Client</dt><dd><a class="font-medium text-primary-600" href="{{ route('clients.show', $deal->client) }}">{{ $deal->client->name }}</a></dd></div>
+                        <div><dt class="text-gray-500">Client</dt><dd><x-client-link :client="$deal->client" /></dd></div>
                         <div><dt class="text-gray-500">Status</dt><dd>{{ $deal->status }}</dd></div>
                         <div><dt class="text-gray-500">Won at</dt><dd>{{ $deal->won_at?->format('d M Y') ?? '-' }}</dd></div>
                         <div><dt class="text-gray-500">Lost at</dt><dd>{{ $deal->lost_at?->format('d M Y') ?? '-' }}</dd></div>
@@ -70,5 +70,6 @@
                 </div>
             </div>
         </section>
+        @include('partials.related-tasks', ['relatedTasks' => $deal->tasks, 'taskContext' => ['deal_id' => $deal->id]])
     </div>
 </x-app-layout>

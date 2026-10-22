@@ -35,10 +35,10 @@
         </div>
 
         <section class="grid gap-4 md:grid-cols-4">
-            <x-stat-card label="Deals" :value="$client->deals->count()" icon="pipeline" />
-            <x-stat-card label="Projects" :value="$client->projects->count()" icon="briefcase" tone="green" />
-            <x-stat-card label="Invoiced" :value="$money($client->invoices->sum('total'))" icon="document" tone="amber" />
-            <x-stat-card label="Outstanding" :value="$money($client->invoices->sum(fn($invoice) => $invoice->balance))" icon="document" tone="rose" />
+            <x-stat-card label="Deals" :value="$client->deals_count" icon="pipeline" />
+            <x-stat-card label="Projects" :value="$client->projects_count" icon="briefcase" tone="green" />
+            <x-stat-card label="Invoiced" :value="$money($client->invoiced_total)" icon="document" tone="amber" />
+            <x-stat-card label="Outstanding" :value="$money($client->outstanding_total)" icon="document" tone="rose" />
         </section>
 
         <section class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
@@ -86,5 +86,7 @@
                 </div>
             </div>
         </section>
+        @include('partials.related-tasks', ['relatedTasks' => $client->tasks, 'taskContext' => ['client_id' => $client->id]])
+        @include('partials.related-invoices')
     </div>
 </x-app-layout>

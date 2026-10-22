@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class InvoiceService
 {
@@ -29,7 +30,7 @@ class InvoiceService
                         'description' => $item['description'],
                         'quantity' => $quantity,
                         'unit_price' => $unitPrice,
-                        'total' => $quantity * $unitPrice,
+                        'total' => round($quantity * $unitPrice, 2),
                         'sort_order' => $index,
                     ]);
                 });
@@ -42,11 +43,18 @@ class InvoiceService
     {
         $subtotal = (float) $invoice->items()->sum('total');
         $discount = (float) $invoice->discount;
-        $tax = (float) $invoice->tax;
-        $total = max(0, $subtotal - $discount + $tax);
+        $tax = $invoice->tax_percentage !== null
+            ? round(max(0, $subtotal - $discount) * (float) $invoice->tax_percentage / 100, 2)
+            : (float) $invoice->tax;
+        $total = round(max(0, $subtotal - $discount + $tax), 2);
         $amountPaid = min((float) $invoice->amount_paid, $total);
 
+        if ($invoice->status === 'paid' && $amountPaid < $total) {
+            throw ValidationException::withMessages(['amount_paid' => 'Untuk status Paid, isi jumlah pembayaran penuh atau pilih status lain.']);
+        }
+
         $invoice->forceFill([
+            'tax' => $tax,
             'subtotal' => $subtotal,
             'total' => $total,
             'amount_paid' => $amountPaid,
@@ -69,6 +77,9 @@ class InvoiceService
 
     public function markPaid(Invoice $invoice): Invoice
     {
+        if ((float) $invoice->total <= 0) {
+            throw ValidationException::withMessages(['amount_paid' => 'Invoice kosong tidak dapat ditandai lunas.']);
+        }
         $invoice->forceFill([
             'amount_paid' => $invoice->total,
             'status' => 'paid',

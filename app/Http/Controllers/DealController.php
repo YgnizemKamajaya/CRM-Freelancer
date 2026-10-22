@@ -47,7 +47,7 @@ class DealController extends Controller
                 'probability' => 10,
                 'currency' => 'IDR',
             ]),
-            'clients' => Client::orderBy('name')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
             'stages' => Deal::STAGES,
             'sources' => Deal::SOURCES,
         ]);
@@ -78,7 +78,7 @@ class DealController extends Controller
 
         return view('deals.form', [
             'deal' => $deal,
-            'clients' => Client::orderBy('name')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
             'stages' => Deal::STAGES,
             'sources' => Deal::SOURCES,
         ]);

@@ -1,0 +1,65 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                    0.01s
+
+   PASS  Tests\Feature\AuditRegressionTest
+  ✓ invoice edit keeps all rows and validation input                     3.21s
+  ✓ percentage tax is applied after discount and can be cleared          0.21s
+  ✓ paid create update and cancel reconcile exactly one income           0.23s
+  ✓ partial payment reductions and reversal are reconciled               0.20s
+  ✓ invoice deletion removes managed income and keeps manual entries     0.12s
+  ✓ manual income is not double counted and currency matches wallet      0.07s
+  ✓ managed transactions cannot be edited or deleted independently       1.08s
+  ✓ invalid paid selection rolls back header items and number            0.05s
+  ✓ missing matching wallet is visible and resave records payment        0.13s
+  ✓ archiving client keeps lists details selectors and exports readable  1.02s
+  ✓ archived relation can be retained but not newly selected             0.06s
+  ✓ client aggregates are complete and exclude cancelled invoices        0.11s
+  ✓ board promotion requires active client is atomic and idempotent      0.10s
+  ✓ archived client is not eligible for card promotion                   0.06s
+  ✓ journal date filter applies and rejects invalid dates                0.12s
+  ✓ numeric and passphrase pin modes unlock without leaking secret       0.08s
+  ✓ invalid pin configuration and throttling are reported                0.05s
+  ✓ checklist completion updates project and uncheck does not override…  0.07s
+  ✓ checklist default uses creation date and date navigation persists    0.09s
+  ✓ duplicate delete triggers are removed on workspace forms             0.07s
+  ✓ seeding twice does not duplicate tasks                               0.45s
+  ✓ archived wallet assets are preserved in totals and linked goal       0.02s
+  ✓ board actions and task deletion are reachable                        0.14s
+  ✓ payment migration adopts legacy income and preserves it on rollback  0.48s
+  ✓ workspace demo seeding is idempotent and searchable                  2.36s
+  ✓ line item amounts are rounded before tax                             0.04s
+
+   PASS  Tests\Feature\CrmWorkflowTest
+  ✓ dashboard renders after pin unlock                                   0.20s
+  ✓ projects index renders with task progress                            0.16s
+  ✓ deal can be converted to project once                                0.08s
+  ✓ invoice items calculate total and paid status                        0.09s
+  ✓ clients can be filtered by tag                                       0.16s
+  ✓ deal stage can be updated inline                                     0.05s
+  ✓ task can be quick rescheduled                                        0.05s
+  ✓ project quick task returns to project                                0.06s
+  ✓ project progress syncs from task completion                          0.14s
+  ✓ invoice pdf can be downloaded                                        0.31s
+  ✓ settings logo and avatar uploads are stored                          0.06s
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application redirects guests to login                            0.03s
+
+   PASS  Tests\Feature\PinAccessTest
+  ✓ guest is redirected to pin login                                     0.03s
+  ✓ pin login screen can be rendered                                     0.02s
+  ✓ valid pin unlocks workspace                                          0.02s
+  ✓ invalid pin is rejected                                              0.02s
+  ✓ lock clears workspace access                                         0.01s
+
+   PASS  Tests\Feature\WorkspaceUploadRegressionTest
+  ✓ goal options can be unchecked and archived wallet is retained        0.07s
+  ✓ goal banner is private and replacement and removal clean up files    0.04s
+  ✓ vault upload download and deletion are private                       0.08s
+  ✓ vault does not trust client mime or serve active content inline      0.03s
+  ✓ signature replacement keeps old file when new storage fails          0.03s
+  ✓ signature can be saved and removed with validation                   0.03s
+
+  Tests:    50 passed (274 assertions)
+  Duration: 12.54s

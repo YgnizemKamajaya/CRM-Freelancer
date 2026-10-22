@@ -138,7 +138,7 @@ class DatabaseSeeder extends Seeder
             $client = $clients[$i % $clients->count()];
             $project = $projects[$i % $projects->count()];
             Task::updateOrCreate(
-                ['title' => "Demo task {$i}"],
+                ['title' => ['Follow up proposal', 'Prepare wireframe', 'Send invoice reminder', 'Review client feedback'][$i % 4]." {$i}"],
                 [
                     'client_id' => $client->id,
                     'project_id' => $project->id,
@@ -200,6 +200,8 @@ class DatabaseSeeder extends Seeder
                 ['quantity' => 1, 'unit_price' => $total, 'total' => $total, 'sort_order' => 0],
             );
         }
+
+        $this->call(WorkspaceDemoSeeder::class);
 
         $clients->each(function (Client $client) {
             $client->update(['last_contacted_at' => $client->activities()->max('activity_at') ?? $client->last_contacted_at]);

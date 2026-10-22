@@ -1,54 +1,46 @@
 # Changelog
 
-All notable changes to this project. Format loosely follows
-[Keep a Changelog](https://keepachangelog.com/). The base mini-CRM release is 1.0;
-the workspace expansion is grouped as the 2.x line.
+Changes under Unreleased are recorded locally and have not been published as a release.
 
-## [Unreleased]
+## Unreleased
 
-### Added — Personal Workspace expansion
+### Added
 
-- **Dashboard 2.0** — a command-centre home (`dashboard`) with a time-aware
-  greeting and six cards: an interactive Focus checklist, cashflow, pinned dream
-  goal, a cross-module "Perlu perhatian" alert list, pipeline, and mood. The old
-  CRM KPI dashboard moved to `dashboard.crm`.
-- **Today checklist** — a daily list (`today.index`) separate from CRM tasks:
-  drag-to-reorder, roll-over of unfinished items, and one-click pull of CRM tasks
-  due today. Also embedded as an interactive card on the home.
-- **Focus (Pomodoro)** — front-end timer (`focus.index`): work/short/long cycles,
-  adjustable durations, sound + optional desktop notifications. No persistence yet.
-- **Finance** — wallets, income/expense transactions, budgets, and a dashboard
-  (cashflow chart, category breakdown, budget usage). Marking an invoice paid now
-  auto-records income.
-- **Goals** — personal and financial goals with progress meters, financial
-  auto-tracking of wallet balances, per-goal banners (gradient preset or uploaded
-  image), and pin-as-dream.
-- **Workspace (Kanban)** — idea/project boards with native Livewire `wire:sort`
-  drag-and-drop across columns; cards can be promoted to CRM projects.
-- **Journal** — markdown entries with mood tracking, 14-day trend, tag cloud,
-  writing streak, and per-entry Markdown export.
-- **Vault** — private file store (25 MB/file) optionally linked to clients/projects.
-- **Quick capture** — global `Ctrl`/`Cmd`+`K` palette to search everything and jump
-  to create actions from anywhere.
-- Grouped sidebar navigation (CRM / Personal), three-theme semantic color tokens
-  (`--crm-income`, `--crm-expense`, `--crm-mood-*`, `--crm-priority-*`), and new
-  reusable pieces (`x-coming-soon`, `.crm-meter`, goal banners).
-- `CLAUDE.md` (architecture guide) and `AUDIT-TODO.md` (on-device verification list).
+- Home overview with today's checklist, income/expenses, pinned goal, work needing attention, sales opportunities and journal mood. The separate CRM summary remains available.
+- Personal workspace: dated checklist, work/break timer, wallets/transactions/budgets, goals, boards, journal and private file storage.
+- Search and creation shortcuts with `Ctrl+K` / `Cmd+K`. Search covers supported record titles/names and Vault filenames, not file contents.
+- Invoice item add/remove controls, percentage tax, related task/invoice panels, board editing/deletion, task deletion and checklist date navigation.
+- Stable demo fixtures for the personal workspace. Use only in disposable demo databases.
+- Automated regression tests and a guarded diagnostic for simultaneous MySQL requests.
+
+### Fixed
+
+- Invoice editing no longer drops items beyond five rows; submitted rows survive validation errors.
+- Invoice payments create or update one automatic income entry, including partial payments, changes, cancellation and deletion. Manually linked income is preserved; creating an automatic entry requires a suitable wallet.
+- Archived client references remain readable. Existing links may be retained on edit; new links to archived records are rejected.
+- Client totals include all relevant records rather than only the preview list.
+- Numeric PINs and passphrases both work; configured spaces are preserved and invalid configurations are explained.
+- Card promotion requires an active client and creates/links one project even on repeated requests.
+- Goal options can be unchecked, and linked archived wallets remain available on edit.
+- Goal banner and signature replacement retain existing files when saving fails. Goal save failure also removes the new upload.
+- Vault determines file type from stored content, limits inline previews, and safely handles quoted filenames.
+- Journal date filtering, duplicate delete buttons, missing icons, checklist project-progress updates, repeat-seeding task duplication and the frozen checklist-date default.
 
 ### Changed
 
-- Sidebar restructured into CRM and Personal groups.
-- `.gitignore` rewritten with clearer sections; user uploads under `storage/app`
-  are kept out of version control by Laravel's per-directory ignores.
+- Archived wallet balances continue to count toward assets and goals. Unchecking a checklist item leaves its linked task completed; reopen it from Tasks.
+- Cropper is bundled locally. Removed Flowbite, remote login fonts and confirmed unused app files/styles; retained the two example tests.
+- Added migrations for invoice payment/tax fields and the checklist-date default. Back up existing installations before migrating; do not seed during upgrades.
+- Refreshed setup, contributor, handover and backlog docs with simpler wording. Preserved old plans in the archive and separated historical test results from current status.
 
-### Notes
+### Verification — 22 October 2026
 
-- All new tables are additive; the original CRM schema is untouched, so existing
-  installs migrate safely.
-- Several behaviors (uploads, drag-and-drop persistence, Livewire rendering) require
-  a running app to verify — tracked in `AUDIT-TODO.md`.
+- 52 tests / 284 assertions passed on SQLite and MySQL 8.4.9; lint, formatting, Blade compilation, Vite build and diff whitespace passed.
+- Eight simultaneous workers produced one automatic payment and one linked project in separate checks.
+- Selected browser flows were checked, including login, invoice rows, checklist dates, mobile navigation, board themes/dragging and image crop/save.
+- Read-only review found three invoices matching demo fixtures with no wallets/transactions. No assumed financial entries were added.
+- Broader device, deployment upload, MariaDB and sustained-load checks remain in [AUDIT-TODO.md](AUDIT-TODO.md). The app provides a basic offline page, not offline record editing.
 
-## [1.0] — Mini CRM (baseline)
+## 1.0 — Mini CRM baseline
 
-- Single-user PIN access, Client → Deal → Project → Invoice pipeline, tasks,
-  reports, settings, PDF invoices, and basic PWA support. Built from the local PRD.
+- Single-user PIN access, clients, deals, projects, tasks, invoices, reports, settings, PDF invoices and basic installable web-app support.

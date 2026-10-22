@@ -8,11 +8,13 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Setting;
-use App\Services\InvoiceService;
+use App\Models\Transaction;
 use App\Services\FinanceService;
+use App\Services\InvoiceService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,7 +43,7 @@ class InvoiceController extends Controller
 
         return view('invoices.index', [
             'invoices' => $invoices,
-            'clients' => Client::orderBy('name')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
             'statuses' => Invoice::STATUSES,
             'summary' => $summary,
         ]);
@@ -62,6 +64,7 @@ class InvoiceController extends Controller
                 'status' => 'draft',
                 'discount' => 0,
                 'tax' => 0,
+                'tax_percentage' => $setting->default_tax_percentage,
                 'amount_paid' => 0,
             ]),
             'items' => collect(),
@@ -71,13 +74,18 @@ class InvoiceController extends Controller
     public function store(Request $request, InvoiceService $invoiceService): RedirectResponse
     {
         $data = $this->validated($request);
-        $invoice = Invoice::create(collect($data)->except('items')->all());
-        $invoiceService->replaceItemsAndSync($invoice, $data['items'] ?? []);
+        $invoice = DB::transaction(function () use ($data, $invoiceService) {
+            $setting = Setting::firstOrCreate([]);
+            $setting = Setting::whereKey($setting->id)->lockForUpdate()->firstOrFail();
+            $invoice = Invoice::create(collect($data)->except('items')->all());
+            $invoiceService->replaceItemsAndSync($invoice, $data['items'] ?? []);
+            app(FinanceService::class)->recordInvoicePayment($invoice);
+            if (str_starts_with($invoice->invoice_number, $setting->invoice_prefix.'-')) {
+                $setting->increment('invoice_next_number');
+            }
 
-        $setting = Setting::firstOrCreate([]);
-        if (str_starts_with($invoice->invoice_number, $setting->invoice_prefix.'-')) {
-            $setting->increment('invoice_next_number');
-        }
+            return $invoice;
+        });
 
         return redirect()->route('invoices.show', $invoice)->with('status', 'Invoice created.');
     }
@@ -90,6 +98,7 @@ class InvoiceController extends Controller
         return view('invoices.show', [
             'invoice' => $invoice,
             'activityTypes' => Activity::TYPES,
+            'recordedIncome' => Transaction::where('invoice_id', $invoice->id)->where('type', 'income')->where('currency', $invoice->currency)->sum('amount'),
         ]);
     }
 
@@ -108,8 +117,12 @@ class InvoiceController extends Controller
     {
         $this->authorizeOwner($invoice);
         $data = $this->validated($request, $invoice);
-        $invoice->update(collect($data)->except('items')->all());
-        $invoiceService->replaceItemsAndSync($invoice, $data['items'] ?? []);
+        DB::transaction(function () use ($invoice, $data, $invoiceService) {
+            $locked = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            $locked->update(collect($data)->except('items')->all());
+            $invoiceService->replaceItemsAndSync($locked, $data['items'] ?? []);
+            app(FinanceService::class)->recordInvoicePayment($locked);
+        });
 
         return redirect()->route('invoices.show', $invoice)->with('status', 'Invoice updated.');
     }
@@ -125,8 +138,11 @@ class InvoiceController extends Controller
     public function markPaid(Invoice $invoice, InvoiceService $invoiceService, FinanceService $financeService): RedirectResponse
     {
         $this->authorizeOwner($invoice);
-        $invoiceService->markPaid($invoice);
-        $financeService->recordInvoicePayment($invoice);
+        DB::transaction(function () use ($invoice, $invoiceService, $financeService) {
+            $locked = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            $invoiceService->markPaid($locked);
+            $financeService->recordInvoicePayment($locked);
+        });
 
         return back()->with('status', 'Invoice marked paid.');
     }
@@ -134,7 +150,11 @@ class InvoiceController extends Controller
     public function destroy(Invoice $invoice): RedirectResponse
     {
         $this->authorizeOwner($invoice);
-        $invoice->delete();
+        DB::transaction(function () use ($invoice) {
+            $locked = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            $locked->delete();
+            app(FinanceService::class)->recordInvoicePayment($locked);
+        });
 
         return redirect()->route('invoices.index')->with('status', 'Invoice deleted.');
     }
@@ -176,12 +196,13 @@ class InvoiceController extends Controller
             'currency' => ['required', 'string', 'size:3'],
             'discount' => ['nullable', 'numeric', 'min:0'],
             'tax' => ['nullable', 'numeric', 'min:0'],
+            'tax_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'amount_paid' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(array_keys(Invoice::STATUSES))],
             'notes' => ['nullable', 'string', 'max:5000'],
             'items' => ['nullable', 'array'],
             'items.*.description' => ['nullable', 'string', 'max:255'],
-            'items.*.quantity' => ['nullable', 'numeric', 'gt:0'],
+            'items.*.quantity' => ['required_with:items.*.description', 'nullable', 'numeric', 'gt:0'],
             'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
         ]);
     }
@@ -192,8 +213,8 @@ class InvoiceController extends Controller
     private function formData(Request $request): array
     {
         return [
-            'clients' => Client::orderBy('name')->get(),
-            'projects' => Project::with('client')->orderBy('title')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
+            'projects' => $this->relationOptions(Project::class, 'project_id')->with('client')->orderBy('title')->get(),
             'statuses' => Invoice::STATUSES,
         ];
     }

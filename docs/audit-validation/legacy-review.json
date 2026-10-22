@@ -1,0 +1,7 @@
+{
+    "mode": "read-only",
+    "legacy_auto_entries_without_managed_id": 0,
+    "duplicate_task_title_groups": 0,
+    "invoices_with_received_money_but_no_income_entry": 3,
+    "invoices_with_income_above_recorded_received_amount": 0
+}

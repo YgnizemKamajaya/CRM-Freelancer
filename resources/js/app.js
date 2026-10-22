@@ -1,5 +1,7 @@
 import './bootstrap';
-import 'flowbite';
+import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
+window.Cropper = Cropper;
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

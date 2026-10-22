@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +31,7 @@ class Invoice extends Model
         'subtotal',
         'discount',
         'tax',
+        'tax_percentage',
         'total',
         'amount_paid',
         'status',
@@ -48,6 +48,7 @@ class Invoice extends Model
             'subtotal' => 'decimal:2',
             'discount' => 'decimal:2',
             'tax' => 'decimal:2',
+            'tax_percentage' => 'decimal:2',
             'total' => 'decimal:2',
             'amount_paid' => 'decimal:2',
             'sent_at' => 'datetime',
@@ -62,7 +63,7 @@ class Invoice extends Model
 
     public function client(): BelongsTo
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function project(): BelongsTo

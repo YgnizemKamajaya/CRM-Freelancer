@@ -40,6 +40,12 @@
         @case('user')
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 7.5a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
             @break
+        @case('chevron-right')
+            <path stroke-linecap="round" stroke-linejoin="round" d="m9 6.75 5.25 5.25L9 17.25" />
+            @break
+        @case('chevron-left')
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17.25 9.75 12 15 6.75" />
+            @break
         @case('chevron-down')
             <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 9.75 5.25 5.25 5.25-5.25" />
             @break

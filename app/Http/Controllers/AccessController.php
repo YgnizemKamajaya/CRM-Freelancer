@@ -16,13 +16,24 @@ class AccessController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('auth.login');
+        $configuredPin = (string) config('crm.pin');
+        $pinLength = strlen($configuredPin);
+
+        return view('auth.login', [
+            'useNumpad' => ctype_digit($configuredPin) && $pinLength >= 1 && $pinLength <= 8,
+            'pinLength' => $pinLength,
+            'pinConfigurationValid' => $pinLength >= 1 && mb_strlen($configuredPin) <= 128,
+        ]);
     }
 
     public function unlock(Request $request): RedirectResponse
     {
+        if ((string) config('crm.pin') === '' || mb_strlen((string) config('crm.pin')) > 128) {
+            throw ValidationException::withMessages(['pin' => 'CRM_PIN harus berisi 1–128 karakter. Perbarui konfigurasi workspace.']);
+        }
+
         $data = $request->validate([
-            'pin' => ['required', 'string', 'max:32'],
+            'pin' => ['required', 'string', 'max:128'],
         ]);
 
         $key = 'crm-pin:'.$request->ip();

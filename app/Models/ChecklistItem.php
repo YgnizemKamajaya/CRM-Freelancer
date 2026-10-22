@@ -35,6 +35,13 @@ class ChecklistItem extends Model
         return $query->whereDate('for_date', $date);
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (ChecklistItem $item) {
+            $item->for_date ??= today()->toDateString();
+        });
+    }
+
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);

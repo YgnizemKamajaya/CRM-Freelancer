@@ -20,11 +20,13 @@ class JournalController extends Controller
 
     public function index(Request $request, JournalService $journal): View
     {
+        $request->validate(['date' => ['nullable', 'date_format:Y-m-d']]);
         $entries = JournalEntry::query()
             ->with('client')
             ->search($request->string('search')->toString())
             ->when($request->filled('mood'), fn ($query) => $query->where('mood', $request->mood))
             ->when($request->filled('tag'), fn ($query) => $query->whereJsonContains('tags', $request->string('tag')->toString()))
+            ->when($request->filled('date'), fn ($query) => $query->whereDate('entry_date', $request->input('date')))
             ->orderByDesc('entry_date')
             ->latest()
             ->paginate(10)
@@ -142,8 +144,8 @@ class JournalController extends Controller
         return [
             'moods' => JournalEntry::MOODS,
             'moodEmoji' => JournalEntry::MOOD_EMOJI,
-            'clients' => Client::orderBy('name')->get(),
-            'projects' => Project::with('client')->orderBy('title')->get(),
+            'clients' => $this->relationOptions(Client::class, 'client_id')->orderBy('name')->get(),
+            'projects' => $this->relationOptions(Project::class, 'project_id')->with('client')->orderBy('title')->get(),
         ];
     }
 }

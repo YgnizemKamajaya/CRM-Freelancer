@@ -1,0 +1,28 @@
+PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.21
+Configuration: /home/kamajaya/Documents/GitHub/ProjectCloud/MiniCRM_Lancer/phpunit.xml
+
+................                                                  16 / 16 (100%)
+
+Time: 00:04.473, Memory: 24.00 MB
+
+Audit Claim Validation
+ ✔ Board promotion hits non nullable client constraint
+ ✔ Archived client breaks all seven claimed routes and exports
+ ✔ Archived client still passes relation validation
+ ✔ Date filter is ignored
+ ✔ Client totals are limited to eight
+ ✔ Six invoice items render five and form resave deletes sixth
+ ✔ Paid invoice created via form has no income transaction
+ ✔ Paid selection with zero amount becomes sent
+ ✔ Existing income is not reconciled after paid invoice amount changes
+ ✔ Checklist uncheck leaves task done in both components
+ ✔ Archived wallet included in total
+ ✔ Seeder second run adds twenty tasks
+ ✔ Six digit pin is accepted by backend but ui remains four
+ ✔ Checklist default stays at migration day
+ ✔ Nullable project fix leaves invoice create page broken
+ ✔ Edit wallet has two delete triggers
+
+OK (16 tests, 53 assertions)

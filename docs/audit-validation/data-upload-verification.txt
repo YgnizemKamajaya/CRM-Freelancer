@@ -1,0 +1,191 @@
+No syntax errors detected in app/Providers/AppServiceProvider.php
+No syntax errors detected in app/Models/JournalEntry.php
+No syntax errors detected in app/Models/Board.php
+No syntax errors detected in app/Models/ChecklistItem.php
+No syntax errors detected in app/Models/Project.php
+No syntax errors detected in app/Models/Invoice.php
+No syntax errors detected in app/Models/VaultFile.php
+No syntax errors detected in app/Models/Wallet.php
+No syntax errors detected in app/Models/Budget.php
+No syntax errors detected in app/Models/Transaction.php
+No syntax errors detected in app/Models/Card.php
+No syntax errors detected in app/Models/Client.php
+No syntax errors detected in app/Models/Activity.php
+No syntax errors detected in app/Models/Setting.php
+No syntax errors detected in app/Models/InvoiceItem.php
+No syntax errors detected in app/Models/Task.php
+No syntax errors detected in app/Models/Deal.php
+No syntax errors detected in app/Models/Goal.php
+No syntax errors detected in app/Models/BoardColumn.php
+No syntax errors detected in app/Livewire/QuickCapture.php
+No syntax errors detected in app/Livewire/HomeFocusList.php
+No syntax errors detected in app/Livewire/TodayChecklist.php
+No syntax errors detected in app/Livewire/BoardShow.php
+No syntax errors detected in app/Services/DealService.php
+No syntax errors detected in app/Services/DashboardService.php
+No syntax errors detected in app/Services/HomeService.php
+No syntax errors detected in app/Services/ProjectProgressService.php
+No syntax errors detected in app/Services/InvoiceService.php
+No syntax errors detected in app/Services/FinanceService.php
+No syntax errors detected in app/Services/JournalService.php
+No syntax errors detected in app/Http/Controllers/Concerns/ValidatesCrmRelations.php
+No syntax errors detected in app/Http/Controllers/JournalController.php
+No syntax errors detected in app/Http/Controllers/ActivityController.php
+No syntax errors detected in app/Http/Controllers/DashboardController.php
+No syntax errors detected in app/Http/Controllers/TransactionController.php
+No syntax errors detected in app/Http/Controllers/DealController.php
+No syntax errors detected in app/Http/Controllers/Controller.php
+No syntax errors detected in app/Http/Controllers/FinanceController.php
+No syntax errors detected in app/Http/Controllers/ESignatureController.php
+No syntax errors detected in app/Http/Controllers/ClientController.php
+No syntax errors detected in app/Http/Controllers/VaultController.php
+No syntax errors detected in app/Http/Controllers/ProjectController.php
+No syntax errors detected in app/Http/Controllers/HomeController.php
+No syntax errors detected in app/Http/Controllers/SettingController.php
+No syntax errors detected in app/Http/Controllers/WalletController.php
+No syntax errors detected in app/Http/Controllers/AccessController.php
+No syntax errors detected in app/Http/Controllers/TaskController.php
+No syntax errors detected in app/Http/Controllers/InvoiceController.php
+No syntax errors detected in app/Http/Controllers/HomeDashboardController.php
+No syntax errors detected in app/Http/Controllers/ReportController.php
+No syntax errors detected in app/Http/Controllers/BoardController.php
+No syntax errors detected in app/Http/Controllers/BudgetController.php
+No syntax errors detected in app/Http/Controllers/GoalController.php
+No syntax errors detected in app/Http/Middleware/EnsurePinUnlocked.php
+No syntax errors detected in app/View/Components/AppLayout.php
+No syntax errors detected in bootstrap/providers.php
+No syntax errors detected in bootstrap/cache/services.php
+No syntax errors detected in bootstrap/cache/packages.php
+No syntax errors detected in bootstrap/app.php
+No syntax errors detected in config/cache.php
+No syntax errors detected in config/queue.php
+No syntax errors detected in config/quotes.php
+No syntax errors detected in config/database.php
+No syntax errors detected in config/filesystems.php
+No syntax errors detected in config/services.php
+No syntax errors detected in config/crm.php
+No syntax errors detected in config/auth.php
+No syntax errors detected in config/session.php
+No syntax errors detected in config/mail.php
+No syntax errors detected in config/logging.php
+No syntax errors detected in config/app.php
+No syntax errors detected in database/factories/InvoiceFactory.php
+No syntax errors detected in database/factories/ActivityFactory.php
+No syntax errors detected in database/factories/SettingFactory.php
+No syntax errors detected in database/factories/ClientFactory.php
+No syntax errors detected in database/factories/TaskFactory.php
+No syntax errors detected in database/factories/DealFactory.php
+No syntax errors detected in database/factories/InvoiceItemFactory.php
+No syntax errors detected in database/factories/ProjectFactory.php
+No syntax errors detected in database/migrations/2026_07_15_000001_create_finance_tables.php
+No syntax errors detected in database/migrations/2026_07_15_000006_create_vault_tables.php
+No syntax errors detected in database/migrations/2026_07_15_000007_add_banner_to_goals.php
+No syntax errors detected in database/migrations/0001_01_01_000000_create_sessions_table.php
+No syntax errors detected in database/migrations/2026_07_15_000004_create_checklist_tables.php
+No syntax errors detected in database/migrations/2026_07_15_000005_create_goals_tables.php
+No syntax errors detected in database/migrations/2026_10_22_000001_track_invoice_payments_and_tax.php
+No syntax errors detected in database/migrations/0001_01_01_000002_create_jobs_table.php
+No syntax errors detected in database/migrations/2026_07_08_090543_add_signature_to_settings.php
+No syntax errors detected in database/migrations/2026_07_15_000003_create_workspace_tables.php
+No syntax errors detected in database/migrations/2026_07_15_000002_create_journal_tables.php
+No syntax errors detected in database/migrations/2026_07_07_000001_create_crm_core_tables.php
+No syntax errors detected in database/migrations/0001_01_01_000001_create_cache_table.php
+No syntax errors detected in database/migrations/2026_10_22_000002_remove_static_checklist_date_default.php
+No syntax errors detected in database/seeders/DatabaseSeeder.php
+No syntax errors detected in database/seeders/WorkspaceDemoSeeder.php
+No syntax errors detected in routes/console.php
+No syntax errors detected in routes/web.php
+No syntax errors detected in tests/Unit/ExampleTest.php
+No syntax errors detected in tests/TestCase.php
+No syntax errors detected in tests/Support/ConcurrentAuditProbe.php
+No syntax errors detected in tests/Feature/WorkspaceUploadRegressionTest.php
+No syntax errors detected in tests/Feature/PinAccessTest.php
+No syntax errors detected in tests/Feature/AuditRegressionTest.php
+No syntax errors detected in tests/Feature/ExampleTest.php
+No syntax errors detected in tests/Feature/CrmWorkflowTest.php
+{"tool":"pint","result":"passed"}
+
+   INFO  Blade templates cached successfully.
+
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                    0.01s
+
+   PASS  Tests\Feature\AuditRegressionTest
+  ✓ invoice edit keeps all rows and validation input                     1.28s
+  ✓ percentage tax is applied after discount and can be cleared          0.07s
+  ✓ paid create update and cancel reconcile exactly one income           0.07s
+  ✓ partial payment reductions and reversal are reconciled               0.05s
+  ✓ invoice deletion removes managed income and keeps manual entries     0.04s
+  ✓ manual income is not double counted and currency matches wallet      0.02s
+  ✓ managed transactions cannot be edited or deleted independently       0.75s
+  ✓ invalid paid selection rolls back header items and number            0.03s
+  ✓ missing matching wallet is visible and resave records payment        0.08s
+  ✓ archiving client keeps lists details selectors and exports readable  0.63s
+  ✓ archived relation can be retained but not newly selected             0.04s
+  ✓ client aggregates are complete and exclude cancelled invoices        0.06s
+  ✓ board promotion requires active client is atomic and idempotent      0.08s
+  ✓ archived client is not eligible for card promotion                   0.04s
+  ✓ journal date filter applies and rejects invalid dates                0.05s
+  ✓ numeric and passphrase pin modes unlock without leaking secret       0.05s
+  ✓ invalid pin configuration and throttling are reported                0.03s
+  ✓ checklist completion updates project and uncheck does not override…  0.04s
+  ✓ checklist default uses creation date and date navigation persists    0.05s
+  ✓ duplicate delete triggers are removed on workspace forms             0.04s
+  ✓ seeding twice does not duplicate tasks                               0.26s
+  ✓ archived wallet assets are preserved in totals and linked goal       0.02s
+  ✓ board actions and task deletion are reachable                        0.07s
+  ✓ payment migration adopts legacy income and preserves it on rollback  0.07s
+  ✓ workspace demo seeding is idempotent and searchable                  0.06s
+  ✓ line item amounts are rounded before tax                             0.04s
+
+   PASS  Tests\Feature\CrmWorkflowTest
+  ✓ dashboard renders after pin unlock                                   0.09s
+  ✓ projects index renders with task progress                            0.05s
+  ✓ deal can be converted to project once                                0.03s
+  ✓ invoice items calculate total and paid status                        0.03s
+  ✓ clients can be filtered by tag                                       0.04s
+  ✓ deal stage can be updated inline                                     0.04s
+  ✓ task can be quick rescheduled                                        0.02s
+  ✓ project quick task returns to project                                0.03s
+  ✓ project progress syncs from task completion                          0.04s
+  ✓ invoice pdf can be downloaded                                        0.24s
+  ✓ settings logo and avatar uploads are stored                          0.06s
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application redirects guests to login                            0.03s
+
+   PASS  Tests\Feature\PinAccessTest
+  ✓ guest is redirected to pin login                                     0.02s
+  ✓ pin login screen can be rendered                                     0.03s
+  ✓ valid pin unlocks workspace                                          0.02s
+  ✓ invalid pin is rejected                                              0.02s
+  ✓ lock clears workspace access                                         0.02s
+
+   PASS  Tests\Feature\WorkspaceUploadRegressionTest
+  ✓ goal options can be unchecked and archived wallet is retained        0.05s
+  ✓ goal banner is private and replacement and removal clean up files    0.04s
+  ✓ vault upload download and deletion are private                       0.05s
+  ✓ goal banner storage failure preserves existing banner                0.04s
+  ✓ goal banner database failure keeps old file and removes new upload   0.04s
+  ✓ vault does not trust client mime or serve active content inline      0.02s
+  ✓ signature replacement keeps old file when new storage fails          0.02s
+  ✓ signature can be saved and removed with validation                   0.04s
+
+  Tests:    52 passed (284 assertions)
+  Duration: 5.33s
+
+
+> build
+> vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 60 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/manifest.json              0.38 kB │ gzip:  0.18 kB
+public/build/assets/app-CMr-B4M_.css    3.59 kB │ gzip:  1.13 kB
+public/build/assets/app-DMt5xs3G.css  111.35 kB │ gzip: 19.51 kB
+public/build/assets/app--dPz8Hzp.js    89.85 kB │ gzip: 31.44 kB
+✓ built in 1.61s

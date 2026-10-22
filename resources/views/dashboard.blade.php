@@ -138,5 +138,16 @@
                 </div>
             </div>
         </section>
+        <section class="grid gap-6 lg:grid-cols-2">
+            @include('partials.related-tasks', ['relatedTasks' => $overdue_tasks, 'taskContext' => [], 'tasksHeading' => 'Overdue tasks'])
+            <div class="crm-card p-5">
+                <h3 class="font-semibold text-gray-900">Pendapatan invoice lunas per bulan</h3>
+                @forelse ($monthly_revenue as $month => $revenue)
+                    <div class="mt-3 flex justify-between gap-3 text-sm"><span>{{ $month }}</span><span>{{ $money($revenue) }}</span></div>
+                @empty
+                    <p class="mt-3 text-sm text-gray-500">Belum ada invoice lunas.</p>
+                @endforelse
+            </div>
+        </section>
     </div>
 </x-app-layout>

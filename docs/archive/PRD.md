@@ -1,3 +1,5 @@
+> Historical requirements, archived 22 October 2026. The original text below includes outdated account, database, Flowbite and scope examples. Use [the current README](../../README.md) for features/setup, [the backlog](../../AUDIT-TODO.md) for remaining work, and [the archive guide](README.md) for context. This document is not a current build plan or proof of production readiness.
+
 # PRD + Implementation Plan
 
 # Mini CRM for Freelancer

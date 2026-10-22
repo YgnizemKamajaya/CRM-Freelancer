@@ -21,7 +21,7 @@
                     :action="route('invoices.destroy', $invoice)"
                     label="Delete"
                     title="Delete invoice?"
-                    body="This invoice and its line items will be deleted."
+                    body="This invoice will be archived and its automatic income removed. Manual transactions remain stored."
                     confirm-label="Delete invoice"
                 />
             </div>
@@ -68,7 +68,7 @@
                 <div class="crm-card p-5">
                     <h3 class="font-semibold text-gray-900">Billing context</h3>
                     <dl class="mt-4 space-y-3 text-sm">
-                        <div><dt class="text-gray-500">Client</dt><dd><a class="font-medium text-primary-600" href="{{ route('clients.show', $invoice->client) }}">{{ $invoice->client->name }}</a></dd></div>
+                        <div><dt class="text-gray-500">Client</dt><dd><x-client-link :client="$invoice->client" /></dd></div>
                         <div><dt class="text-gray-500">Project</dt><dd>{{ $invoice->project?->title ?? '-' }}</dd></div>
                         <div><dt class="text-gray-500">Notes</dt><dd>{{ $invoice->notes ?? '-' }}</dd></div>
                     </dl>
@@ -76,5 +76,11 @@
                 @include('partials.activity-list', ['activities' => $invoice->activities])
             </div>
         </section>
+        @include('partials.related-tasks', ['relatedTasks' => $invoice->tasks, 'taskContext' => ['invoice_id' => $invoice->id]])
+        @if ($invoice->status !== 'cancelled' && (float) $invoice->amount_paid > (float) $recordedIncome)
+            <div class="crm-card p-4 text-sm" role="status">
+                Pembayaran belum seluruhnya tercatat di Finance. Buat wallet aktif {{ $invoice->currency }}, lalu simpan ulang invoice untuk mencatatnya.
+            </div>
+        @endif
     </div>
 </x-app-layout>
